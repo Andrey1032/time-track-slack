@@ -1,0 +1,64 @@
+@import "../../assets/styles/mixins";
+
+.form {
+    position: relative;
+    top: calc((100vh - 316px) * 0.5);
+    left: calc((100vw - 423px) * 0.5);
+    width: 423px; //29vw
+    height: 316px; //41vh
+
+    @media (max-width: 426px) {
+        left: calc((100vw - 320px - 10vw) * 0.5);
+        width: calc(320px + 10vw); //29vw
+    }
+
+    @include modal-style;
+
+    .form__field {
+        position: relative;
+        padding: 24px 32px;
+        display: grid;
+        gap: 10px;
+
+        .form__title {
+            font-weight: 500;
+            font-size: 20px;
+            line-height: 23.44px;
+        }
+
+        .form__group {
+            position: relative;
+
+            .form__input {
+                @include input-style;
+                height: 56px !important;
+            }
+
+            .form__label {
+                position: absolute;
+                top: 16px;
+                left: 12px;
+                pointer-events: none;
+                color: var(--color-black-2);
+                @include adaptiv-font(16, 14);
+                line-height: 24px;
+                transition: all 0.3s;
+            }
+
+            .form__input:focus ~ .form__label,
+            .form__input:not(:placeholder-shown) ~ .form__label {
+                top: 9px;
+                color: var(--color-blue-0);
+                font-size: 12px;
+                @include adaptiv-font(12, 12);
+                line-height: 12px;
+            }
+        }
+    }
+    .form__button {
+        justify-self: end;
+        margin-right: 32px;
+        color: var(--color-blue-0);
+        @include button-style;
+    }
+}

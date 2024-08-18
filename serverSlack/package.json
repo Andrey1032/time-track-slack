@@ -1,0 +1,22 @@
+{
+  "name": "serverslack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  },
+  "dependencies": {
+    "@slack/events-api": "^3.0.1",
+    "@slack/web-api": "^7.3.2",
+    "axios": "^1.7.2",
+    "cors": "^2.8.5",
+    "ngrok": "^5.0.0-beta.2"
+  }
+}

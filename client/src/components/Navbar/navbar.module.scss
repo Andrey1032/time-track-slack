@@ -1,0 +1,102 @@
+@import "../../assets/styles/mixins";
+.nav {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: max-content;
+    width: 100vw;
+    background-color: var(--color-blue-2);
+
+    .back__icon {
+        svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--color-white-0);
+            margin-left: 24px;
+            cursor: pointer;
+            @media (max-width: 426px) {
+                margin-left: 10px;
+            }
+        }
+    }
+
+    .user__data {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .notification {
+            display: flex;
+            padding: 16px;
+            border-left: 1px solid var(--color-black-5);
+            border-right: 1px solid var(--color-black-5);
+
+            .notification__icon {
+                position: relative;
+                cursor: pointer;
+
+                .icon {
+                    width: 24px;
+                    height: 28px;
+                    fill: var(--color-white-0);
+                    @include adaptiv-svg(18, 22);
+                }
+
+                .dot__marker {
+                    width: 6px;
+                    height: 6px;
+                    fill: var(--color-orange);
+                    position: absolute;
+                    top: 0;
+                    right: -3px;
+                }
+            }
+        }
+
+        .user__profile {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 8px 24px;
+            font-weight: 500;
+            cursor: pointer;
+
+            // .user__avatar {
+            //   border: 2px solid rgba(0, 0, 0, 0.12);
+            //   border-radius: 100%;
+            // }
+
+            .user__name {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: relative;
+                text-transform: uppercase;
+
+                font-family: "Roboto";
+                @include adaptiv-font(14, 12);
+                line-height: 16px;
+                letter-spacing: 1.25px;
+                color: var(--color-white-0);
+
+                .marker__sidebar {
+                    margin-left: 10px;
+                    width: 10px;
+                    height: 5px;
+                    fill: var(--color-white-0);
+                }
+            }
+            .user__dept {
+                text-transform: none;
+                font-family: "Inter";
+                text-align: left;
+                @include adaptiv-font(12, 12);
+                line-height: 14.52px;
+                color: var(--color-black-4);
+            }
+        }
+    }
+}

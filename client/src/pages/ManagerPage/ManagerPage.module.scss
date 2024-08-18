@@ -1,0 +1,11 @@
+.manager__page {
+    display: flex;
+    gap: 10px;
+    justify-content: start;
+    flex-wrap: wrap;
+    @media (max-width: 1024px) {
+        .table__data {
+            width: 100vw;
+        }
+    }
+}

@@ -1,0 +1,58 @@
+@import "../../assets/styles/mixins";
+
+.my-calendar {
+    width: fit-content;
+    font-family: "Inter";
+    @include modal-style;
+    .title {
+        @include adaptiv-font(36, 18);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        text-align: left;
+    }
+
+    .cvartal {
+        display: flex;
+        gap: 40px;
+        color: var(--color-gray-1);
+        .month {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            text-align: center;
+
+            .name {
+                font-size: 16px;
+                font-weight: 400;
+                line-height: 19.36px;
+            }
+
+            .week {
+                display: flex;
+                justify-content: space-around;
+
+                .day_name {
+                    width: 36px;
+                }
+            }
+
+            .days {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                .day {
+                    display: flex;
+                    width: 36px;
+                    height: 44px;
+                    align-items: center;
+                    justify-content: center;
+                    &.chill {
+                        background-color: var(--color-white-5);
+                    }
+                    &.excess {
+                        color: var(--color-white-5);
+                    }
+                }
+            }
+        }
+    }
+}

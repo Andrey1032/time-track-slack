@@ -1,0 +1,94 @@
+@mixin adaptiv-font($pcSize, $mobSize) {
+    $addSize: $pcSize - $mobSize;
+    $maxWidth: var(--maxWidth) - 320;
+    font-size: calc(
+        #{$mobSize + px} + #{$addSize} * ((100vw - 320px) / #{var(--maxWidth)})
+    ) !important;
+}
+
+@mixin adaptiv-svg($width, $height) {
+    @media (max-width: 769px) {
+        width: #{$width}px;
+        height: #{$height}px;
+    }
+}
+
+@mixin modal-style {
+    display: grid;
+    gap: 15px;
+    padding: 15px;
+    background-color: var(--color-white-1);
+
+    box-shadow: 0px 19px 38px 0px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 15px 12px 0px rgba(67, 9, 9, 0.22);
+
+    font-family: "Roboto";
+}
+@mixin ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+}
+@mixin button-style {
+    font-family: "Roboto";
+    width: max-content;
+    height: max-content;
+    font-weight: 500;
+    @include adaptiv-font(14, 12);
+    line-height: 16px;
+    letter-spacing: 2%;
+    text-transform: uppercase;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+@mixin title-style {
+    font-family: "Roboto";
+    font-weight: 500;
+    line-height: 23.44px;
+    @include adaptiv-font(20, 14);
+    color: var(--color-black-0);
+}
+@mixin subtitle-style {
+    font-family: "Roboto";
+    @include adaptiv-font(16, 12);
+    font-weight: 400;
+    line-height: 48px;
+    color: var(--color-black-0);
+}
+@mixin input-style {
+    font-family: "Roboto";
+    width: 100%;
+    height: 56px;
+    @media (max-width: 1024px) {
+        height: 36px;
+    }
+    padding: 5px 12px 0 12px;
+    @include adaptiv-font(16, 12);
+
+    line-height: 24px;
+
+    background-color: var(--color-gray-2);
+    outline: none;
+    border: none;
+    border-bottom: 2px solid var(--color-black-3);
+
+    &:focus {
+        border: none;
+        border-bottom: 2px solid var(--color-blue-0);
+    }
+}
+//Убрать выделение текста
+@mixin noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+@mixin scroll-style {
+    scrollbar-width: 1px;
+}

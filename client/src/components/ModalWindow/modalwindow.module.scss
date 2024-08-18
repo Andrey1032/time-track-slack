@@ -1,0 +1,125 @@
+@import "../../assets/styles/mixins";
+
+.modal-window {
+    --widthModal: calc(100vw - (100vw - 320px) * 0.9);
+
+    position: fixed;
+    top: calc((100% - 376px) * 0.7);
+    left: calc((100% - #{var(--widthModal)}) * 0.5);
+
+    overflow-x: hidden;
+    width: #{var(--widthModal)};
+    flex-direction: column;
+    scrollbar-width: thin;
+    @include modal-style;
+    &.employee {
+        top: calc((100% - 376px) * 0.35);
+    }
+    &.director {
+        top: calc((100vh - 80vh) * 0.7);
+        max-height: 80vh;
+        overflow-y: scroll;
+    }
+    .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding: 24px 32px;
+        .title {
+            @include title-style;
+        }
+        .subtitle {
+            @include subtitle-style;
+        }
+        .inputs-time {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        input:not(.select input) {
+            @include input-style;
+        }
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            background: transparent;
+        }
+        .value-text {
+            font-family: "Roboto";
+            @include adaptiv-font(12, 9);
+            font-weight: 400;
+            line-height: 16px;
+        }
+        .select {
+            @include adaptiv-font(16, 12);
+            display: grid;
+            grid-template-columns: 100%;
+            align-items: center;
+        }
+        .form__group {
+            position: relative;
+
+            .form__input {
+                @include input-style;
+                height: 56px !important;
+            }
+
+            .form__label {
+                position: absolute;
+                top: 16px;
+                left: 12px;
+                pointer-events: none;
+                color: var(--color-black-2);
+                @include adaptiv-font(16, 14);
+                line-height: 24px;
+                transition: all 0.3s;
+            }
+
+            .form__input:focus ~ .form__label,
+            .form__input:not(:placeholder-shown) ~ .form__label {
+                top: 9px;
+                font-size: 12px;
+                @include adaptiv-font(12, 12);
+                line-height: 12px;
+            }
+            .icon_search {
+                position: absolute;
+                top: 16px;
+                right: 16px;
+                width: 22px;
+                height: 22px;
+                fill: var(--color-black-2);
+                cursor: pointer;
+            }
+        }
+        .loading_data {
+            position: fixed;
+            top: calc((100% - 376px) * 0.25);
+            left: calc((100% - #{var(--widthModal)}) * 0.48);
+            z-index: 1;
+            width: #{var(--widthModal)};
+            height: 100%;
+        }
+    }
+    .modal-buttons {
+        width: 100%;
+        height: 100%;
+        padding: 12px;
+        display: flex;
+        justify-content: end;
+        gap: 15px;
+        align-items: center;
+        .modal-button-1 {
+            color: var(--color-red);
+            @include button-style;
+        }
+        .modal-button-2 {
+            color: var(--color-gray-0);
+            @include button-style;
+        }
+        .modal-button-3 {
+            color: var(--color-blue-0);
+
+            @include button-style;
+        }
+    }
+}

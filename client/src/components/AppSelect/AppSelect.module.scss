@@ -1,0 +1,59 @@
+@import "../../assets/styles/mixins";
+.custom_select {
+    &__control {
+        height: 56px !important;
+        @media (max-width: 1024px) {
+            height: 36px !important;
+        }
+        font-size: calc(
+            12px + (16 * 1.05 - 12) * ((100vw - 320px) / #{var(--maxWidth)})
+        ) !important;
+
+        box-shadow: none !important;
+        border: none !important;
+        border-bottom: 1px solid var(--color-black-3) !important;
+        border-radius: 0px !important;
+        background-color: var(--color-gray-2) !important;
+        padding: 7px 12px;
+        &--menu-is-open {
+            border-color: var(--color-blue-2) !important;
+        }
+        cursor: pointer !important;
+    }
+    &__value-container {
+        padding: 0 !important;
+    }
+    &__indicator {
+        padding: 5px !important;
+        background-image: url("data:image/svg+xml,%3Csvg  viewBox='0 0 10 5' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M0 0L5 5L10 0H0Z' fill='black' fill-opacity='0.6'/%3E%3C/svg%3E%0A");
+        background-position-y: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        & svg {
+            display: none !important;
+        }
+    }
+    &__indicator-separator {
+        display: none !important;
+    }
+    &__menu {
+        border-radius: 0px !important;
+    }
+    &__option {
+        font-size: calc(
+            12px + (16 * 1.05 - 12) * ((100vw - 320px) / #{var(--maxWidth)})
+        ) !important;
+        cursor: pointer !important;
+        &:hover {
+            background-color: var(--color-gray-2) !important;
+        }
+
+        &--is-focused {
+            background-color: var(--color-gray-2) !important;
+        }
+        &--is-selected {
+            color: black !important;
+            background-color: var(--color-white-0) !important;
+        }
+    }
+}

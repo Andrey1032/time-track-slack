@@ -1,0 +1,32 @@
+:root {
+    --maxWidth: 1440;
+
+    --color-white-0: hsla(0, 0%, 100%, 1);
+    --color-white-1: hsla(0, 0%, 98%, 1);
+    --color-white-2: hsla(0, 0%, 96%, 1);
+    --color-white-3: hsla(0, 0%, 95%, 1);
+    --color-white-4: hsla(0, 0%, 93%, 1);
+    --color-white-5: hsla(0, 0%, 88%, 1);
+    --color-white-6: hsla(0, 0%, 77%, 1);
+
+    --color-gray-0: hsla(0, 0%, 62%, 1);
+    --color-gray-1: hsla(0, 0%, 20%, 1);
+    --color-gray-2: hsla(0, 0%, 20%, 0.06);
+
+    --color-black-0: hsla(0, 0%, 0%, 0.87);
+    --color-black-1: hsla(0, 0%, 0%, 0.6);
+    --color-black-2: hsla(0, 0%, 0%, 0.54);
+    --color-black-3: hsla(0, 0%, 0%, 0.38);
+    --color-black-4: hsla(0, 0%, 0%, 0.24);
+    --color-black-5: hsla(0, 0%, 0%, 0.12);
+
+    --color-blue-0: hsla(223, 93%, 52%, 1);
+    --color-blue-1: hsla(231, 48%, 48%, 1);
+    --color-blue-2: hsla(218, 91%, 60%, 1);
+    --color-blue-3: hsla(214, 84%, 56%, 1);
+    --color-blue-4: hsla(202, 71%, 52%, 1);
+
+    --color-green: hsla(122, 39%, 49%, 1);
+    --color-red: hsla(4, 90%, 58%, 1);
+    --color-orange: hsla(43, 100%, 50%, 1);
+}

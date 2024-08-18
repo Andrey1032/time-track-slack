@@ -1,0 +1,78 @@
+@import "../../assets/styles/mixins";
+
+.menu__users {
+    @include noselect;
+    font-family: "Roboto";
+
+    top: 15vh;
+    left: 1vw;
+    background-color: var(--color-white-0);
+    margin: 15vh 0 0 1vw;
+    min-width: 250px;
+    width: max-content;
+    height: min-content;
+    // max-height: 70vh;
+    // overflow-y: scroll;
+    gap: 10px;
+
+    @include scroll-style;
+
+    @media (max-width: 1024px) {
+        margin: 2vh 0 0;
+        width: 70%;
+    }
+
+    .departament__users {
+        margin-left: 60px;
+        display: none;
+        
+        &.open {
+            display: block;
+        }
+    }
+    .user {
+        padding: 12px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        &.active {
+            background-color: var(--color-white-4);
+        }
+
+        .title {
+            font-weight: 700;
+            @include adaptiv-font(16, 12);
+        }
+
+        .user__name {
+            font-weight: 400;
+            cursor: pointer;
+            @include adaptiv-font(16, 12);
+        }
+
+        .icons {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            .icon {
+                align-items: center;
+                position: relative;
+                width: 14px;
+                height: 14px;
+                fill: var(--color-black-1);
+                cursor: pointer;
+
+                &.open {
+                    transform: rotate(180deg);
+                }
+            }
+        }
+    }
+
+    .button_add {
+        padding: 12px 16px;
+        color: var(--color-blue-0);
+        @include button-style;
+    }
+}
