@@ -20,6 +20,7 @@ const initialState = {
     status: null,
     statusReload: null,
     statusUpdate: "resolved",
+    statusStart: null,
 };
 const userSlice = createSlice({
     name: "employees",
@@ -36,6 +37,16 @@ const userSlice = createSlice({
         selectorStatus: (state) => state.status,
         selectorStatusUpdate: (state) => state.statusUpdate,
         selectorCalendarData: (state) => state.calendarData,
+        selectorYears: (state) => {
+            if (state.statusStart) {
+                if (typeof state.currentEmp === "number") {
+                    return state.employees?.users[state.currentEmp]?.menuYear;
+                } else {
+                    return state.employees?.[state.currentEmp?.dep]
+                        ?.users[state.currentEmp?.user]?.menuYear;
+                }
+            }
+        },
     },
 
     reducers: (create) => ({
@@ -55,7 +66,9 @@ const userSlice = createSlice({
         }),
         deleteDepartment: create.asyncThunk(
             async (params) => {
-                const { data } = await $api.delete(`/department/${params}`);
+                const { data } = await $api.delete(
+                    `${process.env.REACT_APP_DEPARTAMENT}/${params}`
+                );
                 return data;
             },
             {
@@ -74,7 +87,10 @@ const userSlice = createSlice({
         ),
         addDepartment: create.asyncThunk(
             async (params) => {
-                const { data } = await $api.post("/department", params);
+                const { data } = await $api.post(
+                    process.env.REACT_APP_DEPARTAMENT,
+                    params
+                );
                 return data;
             },
             {
@@ -94,7 +110,7 @@ const userSlice = createSlice({
         editDepartment: create.asyncThunk(
             async (params) => {
                 const { data } = await $api.put(
-                    `/department/${params.id}`,
+                    `${process.env.REACT_APP_DEPARTAMENT}/${params.id}`,
                     params.params
                 );
                 return data;
@@ -115,7 +131,9 @@ const userSlice = createSlice({
         ),
         deleteEmployee: create.asyncThunk(
             async (id_user) => {
-                const { data } = await $api.delete(`/user/${id_user}`);
+                const { data } = await $api.delete(
+                    `${process.env.REACT_APP_USER}/${id_user}`
+                );
                 return data;
             },
             {
@@ -136,7 +154,7 @@ const userSlice = createSlice({
         addEmployee: create.asyncThunk(
             async (params) => {
                 const { data } = await $api.post(
-                    "/accountdata/registration",
+                    process.env.REACT_APP_REG,
                     params
                 );
                 return data;
@@ -158,7 +176,7 @@ const userSlice = createSlice({
         editEmployee: create.asyncThunk(
             async (params) => {
                 const { data } = await $api.put(
-                    `/user/${params.id}`,
+                    `${process.env.REACT_APP_USER}/${params.id}`,
                     params.params
                 );
                 return data;
@@ -186,7 +204,7 @@ const userSlice = createSlice({
         }),
         fetchUserData: create.asyncThunk(
             async (params) => {
-                const { data } = await $api.get("/user", {
+                const { data } = await $api.get(process.env.REACT_APP_USER, {
                     params,
                 });
                 return data;
@@ -208,20 +226,26 @@ const userSlice = createSlice({
         ),
         fetchEmployees: create.asyncThunk(
             async (params) => {
-                const { data } = await $api.get("/department", { params });
+                const { data } = await $api.get(
+                    process.env.REACT_APP_DEPARTAMENT,
+                    { params }
+                );
                 return data;
             },
             {
                 pending: (state) => {
                     state.status = "loading";
+                    state.statusStart = false;
                 },
                 fulfilled: (state, action) => {
                     state.status = "resolved";
                     state.employees = action.payload;
+                    state.statusStart = true;
                 },
                 rejected: (state, action) => {
                     state.status = "error";
                     state.errorMessage = action.payload;
+                    state.statusStart = false;
                 },
             }
         ),
@@ -253,5 +277,6 @@ export const {
     selectorStatusReload,
     selectorCalendarData,
     selectorStatusUpdate,
+    selectorYears,
 } = userSlice.selectors;
 export default userSlice.reducer;

@@ -97,103 +97,105 @@ export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
     );
     const [password, setPassword] = useState("");
     return (
-        <div className="modal-window employee" ref={modalRef}>
-            <div className="modal-content">
-                <p className="title">{title}</p>
-                {typeof currentEmp === "object" && (
-                    <div className="select">
-                        <AppSelect
-                            options={options}
-                            currentOption={currentDep}
-                            setCurrentOption={setCurrentDep}
-                            placeholder={"Выберете отдел"}
+        <form>
+            <div className="modal-window employee" ref={modalRef}>
+                <div className="modal-content">
+                    <p className="title">{title}</p>
+                    {typeof currentEmp === "object" && (
+                        <div className="select">
+                            <AppSelect
+                                options={options}
+                                currentOption={currentDep}
+                                setCurrentOption={setCurrentDep}
+                                placeholder={"Выберете отдел"}
+                            />
+                        </div>
+                    )}
+
+                    <div className="form__group">
+                        <input
+                            className="form__input"
+                            type="text"
+                            placeholder=" "
+                            value={slack}
+                            onChange={(e) => setSlack(e.target.value)}
                         />
+                        <label className="form__label">ID в Slack</label>
                     </div>
-                )}
 
-                <div className="form__group">
-                    <input
-                        className="form__input"
-                        type="text"
-                        placeholder=" "
-                        value={slack}
-                        onChange={(e) => setSlack(e.target.value)}
-                    />
-                    <label className="form__label">ID в Slack</label>
-                </div>
+                    <div className="form__group">
+                        <input
+                            className="form__input"
+                            type="text"
+                            placeholder=" "
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                        />
+                        <label className="form__label">Фамилия</label>
+                    </div>
 
-                <div className="form__group">
-                    <input
-                        className="form__input"
-                        type="text"
-                        placeholder=" "
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                    />
-                    <label className="form__label">Фамилия</label>
-                </div>
+                    <div className="form__group">
+                        <input
+                            className="form__input"
+                            type="text"
+                            placeholder=" "
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                        />
+                        <label className="form__label">Имя</label>
+                    </div>
 
-                <div className="form__group">
-                    <input
-                        className="form__input"
-                        type="text"
-                        placeholder=" "
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                    />
-                    <label className="form__label">Имя</label>
+                    <div className="form__group">
+                        <input
+                            className="form__input"
+                            type="text"
+                            placeholder=" "
+                            value={middleName}
+                            onChange={(e) => setMiddleName(e.target.value)}
+                        />
+                        <label className="form__label">Отчество</label>
+                    </div>
+                    <div className="form__group">
+                        <input
+                            className="form__input"
+                            type="text"
+                            placeholder=" "
+                            value={login}
+                            onChange={(e) => setLogin(e.target.value)}
+                        />
+                        <label className="form__label">Логин</label>
+                    </div>
+                    <div className="form__group">
+                        <input
+                            className="form__input"
+                            type="text"
+                            placeholder=" "
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <label className="form__label">Пароль</label>
+                    </div>
                 </div>
-
-                <div className="form__group">
-                    <input
-                        className="form__input"
-                        type="text"
-                        placeholder=" "
-                        value={middleName}
-                        onChange={(e) => setMiddleName(e.target.value)}
-                    />
-                    <label className="form__label">Отчество</label>
-                </div>
-                <div className="form__group">
-                    <input
-                        className="form__input"
-                        type="text"
-                        placeholder=" "
-                        value={login}
-                        onChange={(e) => setLogin(e.target.value)}
-                    />
-                    <label className="form__label">Логин</label>
-                </div>
-                <div className="form__group">
-                    <input
-                        className="form__input"
-                        type="text"
-                        placeholder=" "
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <label className="form__label">Пароль</label>
+                <div className="modal-buttons">
+                    <div
+                        className="modal-button-2"
+                        onClick={() => {
+                            onChange(false);
+                        }}
+                    >
+                        Отмена
+                    </div>
+                    <div
+                        className="modal-button-3"
+                        onClick={() => {
+                            onChange(false);
+                            handleClick();
+                        }}
+                    >
+                        Сохранить изменения
+                    </div>
                 </div>
             </div>
-            <div className="modal-buttons">
-                <div
-                    className="modal-button-2"
-                    onClick={() => {
-                        onChange(false);
-                    }}
-                >
-                    Отмена
-                </div>
-                <div
-                    className="modal-button-3"
-                    onClick={() => {
-                        onChange(false);
-                        handleClick();
-                    }}
-                >
-                    Сохранить изменения
-                </div>
-            </div>
-        </div>
+        </form>
     );
 }

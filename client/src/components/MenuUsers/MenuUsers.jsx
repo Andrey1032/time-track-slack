@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import {
     currentDep,
     currentEmp,
     deleteEmployee,
-    selectorCurrentEmployee,
 } from "../../assets/store/slices/employeesSlice";
+import { Link, useParams } from "react-router-dom";
+import { DIRECTOR_ROUTE, MANAGER_ROUTE } from "../../utils/consts";
 
 export default function MenuUsers({
     users,
@@ -16,25 +17,22 @@ export default function MenuUsers({
     setIsOpenModalEditDepartament,
     role,
 }) {
+    const params = useParams();
     const dispatch = useDispatch();
-    const selectedEmp = useSelector(selectorCurrentEmployee);
-
     const [isOpen, setIsOpen] = useState(
         role
             ? Array.from({ length: departaments?.length }, () => false).map(
-                  (flag, i) => (i === selectedEmp.dep ? true : flag)
+                  (flag, i) => (i === +params.dep ? true : flag)
               )
             : 0
     );
 
     useEffect(() => {
         setIsOpen(
-            role &&
-                Array.from({ length: departaments?.length }, () => false).map(
-                    (flag, i) => (i === selectedEmp.dep ? true : flag)
-                )
+            role && isOpen.map((flag, i) => (i === +params.dep ? true : flag))
         );
-    }, [departaments]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [departaments, params, role]);
     return (
         <>
             {role ? (
@@ -96,14 +94,14 @@ export default function MenuUsers({
                                 {departament.users?.map((user, id_user) => (
                                     <div
                                         className={
-                                            selectedEmp.dep === id_dep &&
-                                            selectedEmp.user === id_user
+                                            +params.dep === id_dep &&
+                                            +params.user === id_user
                                                 ? "user active director"
                                                 : "user director"
                                         }
                                         key={id_user}
                                     >
-                                        <div
+                                        <Link
                                             className="user__name"
                                             onClick={() => {
                                                 dispatch(
@@ -113,16 +111,16 @@ export default function MenuUsers({
                                                     })
                                                 );
                                             }}
+                                            to={`${DIRECTOR_ROUTE}/${id_dep}/${id_user}`}
                                         >
                                             {user.surname +
                                                 " " +
                                                 user.name[0] +
                                                 "."}
-                                        </div>
+                                        </Link>
                                         <div className="icons">
-                                            {id_dep === selectedEmp.dep &&
-                                                id_user ===
-                                                    selectedEmp.user && (
+                                            {id_dep === +params.dep &&
+                                                id_user === +params.user && (
                                                     <svg
                                                         className="icon"
                                                         onClick={() =>
@@ -192,20 +190,21 @@ export default function MenuUsers({
                     {users?.map((user, id) => (
                         <div
                             className={
-                                id === selectedEmp ? "user active" : "user"
+                                id === +params.user ? "user active" : "user"
                             }
                             key={id}
                         >
-                            <div
+                            <Link
                                 className="user__name"
                                 onClick={() => {
                                     dispatch(currentEmp(id));
                                 }}
+                                to={`${MANAGER_ROUTE}/${id}`}
                             >
                                 {user.surname + " " + user.name[0] + "."}
-                            </div>
+                            </Link>
                             <div className="icons">
-                                {id === selectedEmp && (
+                                {id === +params.user && (
                                     <svg
                                         className="icon"
                                         onClick={() =>

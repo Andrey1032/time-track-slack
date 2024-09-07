@@ -4,8 +4,9 @@ const axios = require('axios');
 const cors = require('cors')
 const routes = require('./routes')
 
-const portEvent = 80
+require('dotenv').config();
 
+const portEvent = 80
 
 const app = new express()
 
@@ -16,7 +17,7 @@ const app = new express()
 // app.use('/slack/events', slackEvents.requestListener());
 
 app.use(cors())
-app.use('/app', routes)
+app.use(process.env.SLACK_ROUTER_APP, routes)
 
 app.listen(portEvent, (err) => {
   if(err) return console.log(err.message)

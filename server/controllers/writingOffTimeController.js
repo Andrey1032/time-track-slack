@@ -13,6 +13,7 @@ class WrittenOffTimeController {
       writingByUserID,
       typeOfWorkIdTypeOfWork,
     } = req.body;
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", req.body)
     try {
       const writingOffTime = await Writing_off_time.create({
         month,

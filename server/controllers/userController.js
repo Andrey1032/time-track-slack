@@ -56,7 +56,6 @@ class UserController {
 
     try {
       do {
-
         firstDateCurrentYear = await Calendar.findOne({
           where: {
             date: new Date(yearMenu, 1 - 1, 2).toJSON().substring(0, 10),
@@ -195,97 +194,108 @@ class UserController {
       });
       user = JSON.parse(JSON.stringify(user));
 
-      if (user.working_hours.length === 0)
-        return res
-          .status(200)
-          .send({title: "Информация о рабочем времени сотрудника отсутствует", menuYear: menuYear});
-
-      user.working_hours.forEach((element) => {
-        let index = userF[0].findIndex((el) => {
-          return element.calendar.date === el.date;
-        });
-
-        if (!element.start_time && element.end_time)
-          element.start_time = "--:--";
-        if (element.start_time && !element.end_time) element.end_time = "--:--";
-
-        if (index < 0 || userF[0].length == 0) {
-          if (element.start_time !== null) {
-            userF[0].push({
-              date: element.calendar.date,
-              worked_time: [
-                {
-                  start: element.start_time,
-                  end: element.end_time,
-                },
-              ],
-              reworked_time: [],
-              underworking_time: [],
-              otchet: [],
+      if (user.working_hours.length != 0){
+        user.working_hours.forEach((element) => {
+          let index = userF[0].findIndex((el) => {
+            return element.calendar.date === el.date;
+          });
+  
+          if (!element.start_time && element.end_time)
+            element.start_time = "--:--";
+          if (element.start_time && !element.end_time) element.end_time = "--:--";
+  
+          if (index < 0 || userF[0].length == 0) {
+            if (element.start_time !== null) {
+              userF[0].push({
+                date: element.calendar.date,
+                worked_time: [
+                  {
+                    start: element.start_time,
+                    end: element.end_time,
+                  },
+                ],
+                reworked_time: [],
+                underworking_time: [],
+                otchet: [],
+              });
+            } else {
+              userF[0].push({
+                date: element.calendar.date,
+                worked_time: [],
+                reworked_time: [],
+                underworking_time: [],
+                otchet: [],
+              });
+            }
+          } else if (element.start_time !== null) {
+            userF[0][index].worked_time.push({
+              start: element.start_time,
+              end: element.end_time,
             });
-          } else {
-            userF[0].push({
-              date: element.calendar.date,
-              worked_time: [],
-              reworked_time: [],
-              underworking_time: [],
-              otchet: [],
+            userF[0][index].worked_time.sort((a, b) => {
+              return a.start?.localeCompare(b.start);
             });
           }
-        } else if (element.start_time !== null) {
-          userF[0][index].worked_time.push({
-            start: element.start_time,
-            end: element.end_time,
+        });
+  
+        userF[0].sort((a, b) => {
+          return new Date(a.date) - new Date(b.date);
+        });
+  
+        user.reworkings.forEach((element) => {
+          let index = userF[0].findIndex((el) => {
+            return element.calendar.date === el.date;
           });
-          userF[0][index].worked_time.sort((a, b) => {
-            return a.start?.localeCompare(b.start);
+          let autocreater =
+            element.typeOverUnderWorkIdTypeOverUnderWork === 1 ? true : false;
+          userF[0][index]?.reworked_time.push({
+            time: element.time_reworking,
+            comment: element.comments,
+            autocreater: autocreater,
           });
-        }
-      });
-
-      userF[0].sort((a, b) => {
-        return new Date(a.date) - new Date(b.date);
-      });
-
-      user.reworkings.forEach((element) => {
-        let index = userF[0].findIndex((el) => {
-          return element.calendar.date === el.date;
         });
-        let autocreater =
-          element.typeOverUnderWorkIdTypeOverUnderWork === 1 ? true : false;
-        userF[0][index]?.reworked_time.push({
-          time: element.time_reworking,
-          comment: element.comments,
-          autocreater: autocreater,
+  
+        user.underworkings.forEach((element) => {
+          let index = userF[0].findIndex((el) => {
+            return element.calendar.date === el.date;
+          });
+          let autocreater =
+            element.typeOverUnderWorkIdTypeOverUnderWork === 1 ? true : false;
+          userF[0][index]?.underworking_time.push({
+            time: element.time_underworking,
+            comment: element.comments,
+            autocreater: autocreater,
+          });
         });
-      });
+  
+        user.messages.forEach((element) => {
+          let index = userF[0].findIndex((el) => {
+            return element.calendar.date === el.date;
+          });
+          const timeArr = element.time_message.split(":");
+          let typeMessage = ''
+          switch(element.messageTypeChangeIdMessageTypeChange){
+            case 1: {
+              typeMessage = '(Удаленное)'
+              break
+            }
+            case 2: {
+              typeMessage = '(Измененное)'
+              break
+            }
+          }
+          userF[0][index]?.otchet.push(`${timeArr[0]}:${timeArr[1]} - ${element.message_text} ${typeMessage}`);
+        });
+      }
 
-      user.underworkings.forEach((element) => {
-        let index = userF[0].findIndex((el) => {
-          return element.calendar.date === el.date;
-        });
-        let autocreater =
-          element.typeOverUnderWorkIdTypeOverUnderWork === 1 ? true : false;
-        userF[0][index]?.underworking_time.push({
-          time: element.time_underworking,
-          comment: element.comments,
-          autocreater: autocreater,
-        });
-      });
 
-      user.messages.forEach((element) => {
-        let index = userF[0].findIndex((el) => {
-          return element.calendar.date === el.date;
-        });
-        userF[0][index]?.otchet.push(element.message_text);
-      });
 
-      userF.underworking_months?.map((el) => {
-        el.newDate = new moment(el.year + el.month, "YYYY-MM-DD");
-      });
-      userF.reworking_months?.map((el) => {
-        el.newDate = new moment(el.year + el.month, "YYYY-MM-DD");
-      });
+      // userF.underworking_months?.map((el) => {
+      //   el.newDate = new moment(el.year + el.month, "YYYY-MM-DD");
+      // });
+      // userF.reworking_months?.map((el) => {
+      //   el.newDate = new moment(el.year + el.month, "YYYY-MM-DD");
+      // });
 
       let writtenWorked, writtenMissed;
 

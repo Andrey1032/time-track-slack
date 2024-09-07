@@ -1,6 +1,13 @@
 const bcrypt = require("bcrypt");
 const Sequelize = require("sequelize");
-const { Department, User, Account_Data } = require("../database/models");
+const {
+  Department,
+  User,
+  Account_Data,
+  Calendar,
+  Working_Hours,
+} = require("../database/models");
+const { stack } = require("sequelize/lib/utils");
 
 class DepartmentController {
   async createDepartment(req, res) {
@@ -12,7 +19,14 @@ class DepartmentController {
         slack,
       });
 
-      if (aboutMeneg.password || aboutMeneg.login || aboutMeneg.slack || aboutMeneg.name || aboutMeneg.surname || aboutMeneg.middle_name) {
+      if (
+        aboutMeneg.password ||
+        aboutMeneg.login ||
+        aboutMeneg.slack ||
+        aboutMeneg.name ||
+        aboutMeneg.surname ||
+        aboutMeneg.middle_name
+      ) {
         if (!aboutMeneg.login || !aboutMeneg.password) {
           //return next(ApiError.badRequest('Некорректный login или password'))
           return res.status(401).send("Некорректный login или password");
@@ -113,6 +127,11 @@ class DepartmentController {
 
       departmentF = JSON.parse(JSON.stringify(department));
 
+      let currentDate = new Date();
+      let yearMenu = currentDate.getFullYear() - 1;
+
+      let dep3;
+
       if (Array.isArray(departmentF)) {
         departmentF.sort((a, b) => {
           return a.id_department - b.id_department;
@@ -124,13 +143,133 @@ class DepartmentController {
             })
           );
         });
+        departmentF.forEach((department, indexDep) => {
+          let year_user, menu, year_result;
+          department.users.map((user, index) => {
+            let menuYear = [currentDate.getFullYear()];
+            do {
+              let firstDateCurrentYear;
+              let lastDateCurrentYear;
+  
+              async function get1() {
+                firstDateCurrentYear = await Calendar.findOne({
+                  where: {
+                    date: new Date(yearMenu, 1 - 1, 2).toJSON().substring(0, 10),
+                  },
+                });
+  
+                lastDateCurrentYear = await Calendar.findOne({
+                  where: {
+                    date: new Date(yearMenu, 12).toJSON().substring(0, 10),
+                  },
+                });
+  
+                if (!firstDateCurrentYear || !lastDateCurrentYear) return;
+  
+                year_user = await Working_Hours.findOne({
+                  where: {
+                    userIdUser: user.id_user,
+                    calendarIdCalendar: {
+                      [Sequelize.Op.between]: [
+                        firstDateCurrentYear.id_calendar,
+                        lastDateCurrentYear.id_calendar,
+                      ],
+                    },
+                  },
+                });
+  
+                if (year_user) {
+                  menuYear.push(yearMenu);
+                  yearMenu--;
+                }
+  
+                //console.log(menuYear);
+  
+                return menuYear;
+              }
+  
+              menu = get1();
+  
+            } while (year_user);
+  
+            const menu2 = menu.then(result => {return result})
+            const menu3 = async () => {
+              user.menuYear = await menu2;
+              if (indexDep == departmentF.length - 1){
+                return res.status(200).send(departmentF);
+              }
+            }
+  
+            menu3()
+          });
+        })
+        //return res.status(200).send(departmentF);
       } else {
         departmentF.users.sort((a, b) =>
           a.surname.localeCompare(b.surname, undefined, { sensitivity: "base" })
-      );
-    }
-    
-      return res.status(200).send(departmentF);
+        );
+        
+        let year_user, menu, year_result;
+        departmentF.users.map((user, index) => {
+          let menuYear = [currentDate.getFullYear()];
+          do {
+            let firstDateCurrentYear;
+            let lastDateCurrentYear;
+
+            async function get1() {
+              firstDateCurrentYear = await Calendar.findOne({
+                where: {
+                  date: new Date(yearMenu, 1 - 1, 2).toJSON().substring(0, 10),
+                },
+              });
+
+              lastDateCurrentYear = await Calendar.findOne({
+                where: {
+                  date: new Date(yearMenu, 12).toJSON().substring(0, 10),
+                },
+              });
+
+              if (!firstDateCurrentYear || !lastDateCurrentYear) return;
+
+              year_user = await Working_Hours.findOne({
+                where: {
+                  userIdUser: user.id_user,
+                  calendarIdCalendar: {
+                    [Sequelize.Op.between]: [
+                      firstDateCurrentYear.id_calendar,
+                      lastDateCurrentYear.id_calendar,
+                    ],
+                  },
+                },
+              });
+
+              if (year_user) {
+                menuYear.push(yearMenu);
+                yearMenu--;
+              }
+
+              //console.log(menuYear);
+
+              return menuYear;
+            }
+
+            menu = get1();
+
+          } while (year_user);
+
+          const menu2 = menu.then(result => {return result})
+          const menu3 = async () => {
+            user.menuYear = await menu2;
+            if (index == departmentF.users.length - 1){
+              return res.status(200).send(departmentF);
+            }
+          }
+
+          menu3()
+        });
+      }
+
+      //return res.status(200).send(departmentF);
     } catch (error) {
       console.log(error);
       return res.status(500).send("Ошибка получения отдела(отделов)");

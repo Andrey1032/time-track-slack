@@ -19,11 +19,11 @@ export const authRoutes = [
         element: <EmployeePage />,
     },
     {
-        path: MANAGER_ROUTE,
+        path: MANAGER_ROUTE + "/:user",
         element: <ManagerPage />,
     },
     {
-        path: DIRECTOR_ROUTE,
+        path: DIRECTOR_ROUTE + "/:dep/:user",
         element: <DirectorPage />,
     },
 

@@ -15,6 +15,8 @@ import {
     selectorIdUser,
     selectorUserRole,
 } from "../../assets/store/slices/userSlice";
+import { useForm } from "react-hook-form";
+import { convertTimeInMinutes } from "../../assets/helpers";
 export default function ModalWindowEdit({
     title,
     onChange,
@@ -24,12 +26,13 @@ export default function ModalWindowEdit({
     date,
     id,
 }) {
-    const [valueStartTime, setValueStartTime] = useState(
-        interval ? interval.start : time
-    );
-    const [valueEndTime, setValueEndTime] = useState(
-        interval ? interval.end : time
-    );
+    const { register, handleSubmit } = useForm({
+        defaultValues: {
+            valueStartTime: interval ? interval.start : null,
+            valueEndTime: interval ? interval.end : time,
+            coment: "",
+        },
+    });
     const [coment, setComent] = useState("");
     const calendarData = useSelector(selectorCalendarData);
     const currentEmp = useSelector(selectorCurrentEmployee);
@@ -46,14 +49,10 @@ export default function ModalWindowEdit({
             ? state.employees?.userData[0][id.id_date]?.worked_time
             : state.employees
     );
-    const convertTimeInMinutes = (time) => {
-        const t = time.split(":");
-        return +t[0] * 60 + +t[1];
-    };
+
     const checkInterval = (start, end) => {
         if (convertTimeInMinutes(end) < convertTimeInMinutes(start))
             return false;
-        console.log(start, end, intervals);
         const flag = intervals.map((int, int_id) =>
             int_id !== id.id_time
                 ? convertTimeInMinutes(end) <=
@@ -61,157 +60,156 @@ export default function ModalWindowEdit({
                   convertTimeInMinutes(start) >= convertTimeInMinutes(int.end)
                 : true
         );
-        console.log(flag);
         return flag.reduce((acc, val) => acc * val, 1);
     };
-    return (
-        <div className="modal-window" ref={modalRef}>
-            <div className="modal-content">
-                <p className="title">{title}</p>
 
-                <div className="inputs-time">
+    const onSubmit = async (values) => {
+        if (
+            interval
+                ? values.valueStartTime === interval.start &&
+                  values.valueEndTime === interval.end
+                : values.valueEndTime === time
+        ) {
+            return onChange(false);
+        }
+        if (values.coment !== "") {
+            if (!interval) {
+                await createWrittenOffTime({
+                    month:
+                        Number(calendarData.month) > 1
+                            ? Number(calendarData.month) - 1
+                            : 12,
+                    year:
+                        Number(calendarData.month) > 1
+                            ? Number(calendarData.year)
+                            : Number(calendarData.year) - 1,
+                    old_value: time ? time : "00:00",
+                    new_value: values.valueEndTime,
+                    comments: values.coment,
+                    userIdUser: role
+                        ? typeof currentEmp === "object"
+                            ? employee[currentEmp.dep]?.users[currentEmp.user]
+                                  .id_user
+                            : employee[currentEmp].id_user
+                        : user.userData.id_user,
+                    writingByUserID: role ? userId : user.userData.id_user,
+                    typeOfWorkIdTypeOfWork: title.includes("отработки") ? 1 : 2,
+                });
+                onChange(false);
+            } else {
+                if (checkInterval(values.valueStartTime, values.valueEndTime)) {
+                    await updateWorkingHours({
+                        params: {
+                            year: date[0],
+                            month: date[1],
+                            day: date[2],
+                        },
+                        body: {
+                            start_time_old: interval.start,
+                            end_time_old: interval.end,
+                            start_time_new: values.valueStartTime,
+                            end_time_new: values.valueEndTime,
+                            comments: values.coment,
+                            userIdUser: role
+                                ? typeof currentEmp === "object"
+                                    ? employee[currentEmp.dep]?.users[
+                                          currentEmp.user
+                                      ].id_user
+                                    : employee[currentEmp].id_user
+                                : user.userData.id_user,
+                            writingByUserID: role
+                                ? userId
+                                : user.userData.id_user,
+                            workflowTimeTypeIdWorkflowTimeType: 2,
+                        },
+                    });
+                    onChange(false);
+                } else alert(`Проверьте интервал времени!`);
+            }
+        } else alert("Проверьте наличие комментария!");
+    };
+
+    return (
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="modal-window" ref={modalRef}>
+                <div className="modal-content">
+                    <p className="title">{title}</p>
+
+                    <div className="inputs-time">
+                        {interval && (
+                            <>
+                                C
+                                <input
+                                    type="time"
+                                    {...register("valueStartTime")}
+                                />
+                                до
+                            </>
+                        )}
+                        <input type="time" {...register("valueEndTime")} />
+                    </div>
+                    <div className="form__group">
+                        <input
+                            className="form__input"
+                            type="text"
+                            placeholder=" "
+                            onChange={(e) => setComent(e.target.value)}
+                            {...register("coment")}
+                        />
+                        <label className="form__label">Комментарий</label>
+                    </div>
+                </div>
+                <div className="modal-buttons">
                     {interval && (
-                        <>
-                            C
-                            <input
-                                type="time"
-                                value={valueStartTime}
-                                onChange={(e) =>
-                                    setValueStartTime(e.target.value)
+                        <div
+                            className="modal-button-1"
+                            onClick={async () => {
+                                // eslint-disable-next-line no-restricted-globals
+                                if (confirm("Уверены что хотите удалить?")) {
+                                    await deleteWorkingHours({
+                                        params: {
+                                            year: date[0],
+                                            month: date[1],
+                                            day: date[2],
+                                        },
+                                        body: {
+                                            start_time_old: interval.start,
+                                            end_time_old: interval.end,
+                                            comments: coment,
+                                            userIdUser: role
+                                                ? typeof currentEmp === "object"
+                                                    ? employee[currentEmp.dep]
+                                                          ?.users[
+                                                          currentEmp.user
+                                                      ].id_user
+                                                    : employee[currentEmp]
+                                                          .id_user
+                                                : user.userData.id_user,
+                                            writingByUserID: role
+                                                ? userId
+                                                : user.userData.id_user,
+                                        },
+                                    });
+                                    onChange(false);
                                 }
-                            />
-                            до
-                        </>
+                            }}
+                        >
+                            Удалить
+                        </div>
                     )}
-                    <input
-                        type="time"
-                        value={valueEndTime}
-                        onChange={(e) => setValueEndTime(e.target.value)}
-                    />
-                </div>
-                <div className="form__group">
-                    <input
-                        className="form__input"
-                        type="text"
-                        placeholder=" "
-                        value={coment}
-                        onChange={(e) => setComent(e.target.value)}
-                    />
-                    <label className="form__label">Комментарий</label>
-                </div>
-            </div>
-            <div className="modal-buttons">
-                {interval && (
                     <div
-                        className="modal-button-1"
-                        onClick={async () => {
-                            // eslint-disable-next-line no-restricted-globals
-                            if (confirm("Уверены что хотите удалить?")) {
-                                await deleteWorkingHours({
-                                    params: {
-                                        year: date[0],
-                                        month: date[1],
-                                        day: date[2],
-                                    },
-                                    body: {
-                                        start_time_old: interval.start,
-                                        end_time_old: interval.end,
-                                        comments: coment,
-                                        userIdUser: role
-                                            ? typeof currentEmp === "object"
-                                                ? employee[currentEmp.dep]
-                                                      ?.users[currentEmp.user]
-                                                      .id_user
-                                                : employee[currentEmp].id_user
-                                            : user.userData.id_user,
-                                        writingByUserID: role
-                                            ? userId
-                                            : user.userData.id_user,
-                                    },
-                                });
-                                onChange(false);
-                            }
+                        className="modal-button-2"
+                        onClick={() => {
+                            onChange(false);
                         }}
                     >
-                        Удалить
+                        Отмена
                     </div>
-                )}
-                <div
-                    className="modal-button-2"
-                    onClick={() => {
-                        onChange(false);
-                    }}
-                >
-                    Отмена
-                </div>
-                <div
-                    className="modal-button-3"
-                    onClick={async () => {
-                        if (!interval) {
-                            await createWrittenOffTime({
-                                month:
-                                    Number(calendarData.month) > 1
-                                        ? Number(calendarData.month) - 1
-                                        : 12,
-                                year:
-                                    Number(calendarData.month) > 1
-                                        ? Number(calendarData.year)
-                                        : Number(calendarData.year) - 1,
-                                old_value: time,
-                                new_value: valueEndTime,
-                                comments: coment,
-                                userIdUser: role
-                                    ? typeof currentEmp === "object"
-                                        ? employee[currentEmp.dep]?.users[
-                                              currentEmp.user
-                                          ].id_user
-                                        : employee[currentEmp].id_user
-                                    : user.userData.id_user,
-                                writingByUserID: role
-                                    ? userId
-                                    : user.userData.id_user,
-                                typeOfWorkIdTypeOfWork: title.includes(
-                                    "отработки"
-                                )
-                                    ? 1
-                                    : 2,
-                            });
-                            onChange(false);
-                        } else {
-                            if (checkInterval(valueStartTime, valueEndTime)) {
-                                await updateWorkingHours({
-                                    params: {
-                                        year: date[0],
-                                        month: date[1],
-                                        day: date[2],
-                                    },
-                                    body: {
-                                        start_time_old: interval.start,
-                                        end_time_old: interval.end,
-                                        start_time_new: valueStartTime,
-                                        end_time_new: valueEndTime,
-                                        comments: coment,
-                                        userIdUser: role
-                                            ? typeof currentEmp === "object"
-                                                ? employee[currentEmp.dep]
-                                                      ?.users[currentEmp.user]
-                                                      .id_user
-                                                : employee[currentEmp].id_user
-                                            : user.userData.id_user,
-                                        writingByUserID: role
-                                            ? userId
-                                            : user.userData.id_user,
-                                        workflowTimeTypeIdWorkflowTimeType: 2,
-                                    },
-                                });
-                                onChange(false);
-                            } else alert(`Проверьте интервал времени!`);
-                        }
-                    }}
-                >
-                    Сохранить
+                    <button type="submit" className="modal-button-3">
+                        Сохранить
+                    </button>
                 </div>
             </div>
-        </div>
+        </form>
     );
 }

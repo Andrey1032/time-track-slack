@@ -7,8 +7,10 @@ import {
     loadCalendar,
     selectorCalendar,
 } from "../../assets/store/slices/calendarSlice";
+import { useParams } from "react-router-dom";
 
 export default function CalendarPage() {
+    const params = useParams();
     const dispatch = useDispatch();
     const calendar = useSelector(selectorCalendar);
     const thisYear = new Date().getFullYear();
@@ -17,7 +19,7 @@ export default function CalendarPage() {
     useEffect(() => {
         dispatch(fetchCalendars({ year: currentOption }));
     }, [currentOption]);
-    const [years, setYears] = useState([
+    const [years] = useState([
         {
             value: (thisYear - 1).toString(),
             label: (thisYear - 1).toString(),
@@ -64,17 +66,19 @@ export default function CalendarPage() {
                         setCurrentOption={setCurrentOption}
                         placeholder={"Год"}
                     />
-                    <div>
-                        <input
-                            type="file"
-                            id="uploadBtn"
-                            accept=".json,application/json"
-                            onChange={handleFileChange}
-                        />
-                        <label htmlFor="uploadBtn" className="uploadBtn">
-                            Загрузить файл
-                        </label>
-                    </div>
+                    {params?.dep && (
+                        <div>
+                            <input
+                                type="file"
+                                id="uploadBtn"
+                                accept=".json,application/json"
+                                onChange={handleFileChange}
+                            />
+                            <label htmlFor="uploadBtn" className="uploadBtn">
+                                Загрузить файл
+                            </label>
+                        </div>
+                    )}
                 </div>
             </div>
             <div className="calendar">

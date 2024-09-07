@@ -21,7 +21,10 @@ const calendarSlice = createSlice({
 
         fetchCalendars: create.asyncThunk(
             async (params) => {
-                const { data } = await $api.get("/calendar", { params });
+                const { data } = await $api.get(
+                    process.env.REACT_APP_CALENDAR,
+                    { params }
+                );
                 return data;
             },
             {
@@ -40,7 +43,10 @@ const calendarSlice = createSlice({
         ),
         loadCalendar: create.asyncThunk(
             async (params) => {
-                const { data } = await $api.post("/calendar", params );
+                const { data } = await $api.post(
+                    process.env.REACT_APP_CALENDAR,
+                    params
+                );
                 return data;
             },
             {

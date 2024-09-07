@@ -9,7 +9,7 @@ const initialState = {
     userData: {
         role: null,
     },
-    isAuth: false,
+    isAuth: null,
     calendarData: {
         month: (new Date().getMonth() + 1).toString(),
         year: new Date().getFullYear().toString(),
@@ -23,7 +23,7 @@ const userSlice = createSlice({
     initialState,
     selectors: {
         selectorStatusUser: (state) => state.status,
-        selectorIdUser: (state) => state.userData.id,
+        selectorIdUser: (state) => state.userData.id_user,
         selectorCalendarDataUser: (state) => state.calendarData,
         selectorUserRole: (state) => Boolean(state.userData.role),
     },
@@ -37,7 +37,10 @@ const userSlice = createSlice({
         }),
         fetchAuth: create.asyncThunk(
             async (params) => {
-                const { data } = await $api.post("/accountdata/login", params);
+                const { data } = await $api.post(
+                    process.env.REACT_APP_LOGIN,
+                    params
+                );
                 return data;
             },
             {
@@ -53,15 +56,14 @@ const userSlice = createSlice({
                     };
                     state.dataWork = action.payload.dataWork;
                 },
-                rejected: (state, action) => {
+                rejected: (state) => {
                     state.status = "error";
-                    state.errorMessage = action;
                 },
             }
         ),
         fetchUserData: create.asyncThunk(
             async (params) => {
-                const { data } = await $api.get("/user", {
+                const { data } = await $api.get(process.env.REACT_APP_USER, {
                     params,
                 });
                 return data;
@@ -83,7 +85,7 @@ const userSlice = createSlice({
         ),
         fetchAuthMe: create.asyncThunk(
             async () => {
-                const { data } = await $api.get("/accountdata/auth");
+                const { data } = await $api.get(process.env.REACT_APP_AUTH);
                 return data;
             },
             {

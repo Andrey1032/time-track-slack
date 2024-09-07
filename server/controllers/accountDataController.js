@@ -301,7 +301,19 @@ class AccountDataController {
           let index = userF[0].findIndex((el) => {
             return element.calendar.date === el.date;
           });
-          userF[0][index]?.otchet.push(element.message_text);
+          const timeArr = element.time_message.split(":");
+          let typeMessage = ''
+          switch(element.messageTypeChangeIdMessageTypeChange){
+            case 1: {
+              typeMessage = '(Удаленное)'
+              break
+            }
+            case 2: {
+              typeMessage = '(Измененное)'
+              break
+            }
+          }
+          userF[0][index]?.otchet.push(`${timeArr[0]}:${timeArr[1]} - ${element.message_text} ${typeMessage}`);
         });
 
         userF.underworking_months?.map((el) => {
@@ -589,7 +601,19 @@ class AccountDataController {
           let index = userF[0].findIndex((el) => {
             return element.calendar.date === el.date;
           });
-          userF[0][index].otchet.push(element.message_text);
+          const timeArr = element.time_message.split(":");
+          let typeMessage = ''
+          switch(element.messageTypeChangeIdMessageTypeChange){
+            case 1: {
+              typeMessage = '(Удаленное)'
+              break
+            }
+            case 2: {
+              typeMessage = '(Измененное)'
+              break
+            }
+          }
+          userF[0][index]?.otchet.push(`${timeArr[0]}:${timeArr[1]} - ${element.message_text} ${typeMessage}`);
         });
 
         userF.underworking_months?.map((el) => {

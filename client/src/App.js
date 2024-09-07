@@ -16,6 +16,8 @@ function App() {
     const isAuth = useSelector((state) => state.user.isAuth);
     const role = useSelector((state) => state.user.userData.role);
     const statusAuth = useSelector((state) => state.user.status);
+
+
     return (
         <BrowserRouter>
             {statusAuth === "loading" ? (
@@ -28,7 +30,7 @@ function App() {
                     {isAuth && (
                         <Route
                             path={authRoutes[role].path}
-                            element={<Navbar></Navbar>}
+                            element={<Navbar />}
                         >
                             <Route index element={authRoutes[role].element} />
 

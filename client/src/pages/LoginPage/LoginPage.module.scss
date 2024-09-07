@@ -1,6 +1,6 @@
 @import "../../assets/styles/mixins";
 
-.form {
+.login__page {
     position: relative;
     top: calc((100vh - 316px) * 0.5);
     left: calc((100vw - 423px) * 0.5);
@@ -57,7 +57,6 @@
     }
     .form__button {
         justify-self: end;
-        margin-right: 32px;
         color: var(--color-blue-0);
         @include button-style;
     }

@@ -25,7 +25,7 @@
     .departament__users {
         margin-left: 60px;
         display: none;
-        
+
         &.open {
             display: block;
         }
@@ -43,9 +43,11 @@
         .title {
             font-weight: 700;
             @include adaptiv-font(16, 12);
+            cursor: pointer;
         }
 
         .user__name {
+            all: unset;
             font-weight: 400;
             cursor: pointer;
             @include adaptiv-font(16, 12);

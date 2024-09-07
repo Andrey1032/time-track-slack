@@ -15,11 +15,17 @@ const otchetSlice = createSlice({
     initialState,
     selectors: {
         selectorOtchetData: (state) => state.data,
+        selectorStatusOtchet: (state) => state.status,
     },
     reducers: (create) => ({
+        clearStatus: create.reducer((state) => {
+            state.status = null;
+        }),
         fetchOtchet: create.asyncThunk(
             async (params) => {
-                const { data } = await $api.get("/otchet", { params });
+                const { data } = await $api.get(process.env.REACT_APP_OTCHET, {
+                    params,
+                });
                 return data;
             },
             {
@@ -40,6 +46,7 @@ const otchetSlice = createSlice({
     }),
 });
 
-export const { fetchOtchet } = otchetSlice.actions;
-export const { selectorOtchetData } = otchetSlice.selectors;
+export const { fetchOtchet, clearStatus } = otchetSlice.actions;
+export const { selectorOtchetData, selectorStatusOtchet } =
+    otchetSlice.selectors;
 export default otchetSlice.reducer;

@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express')
 const { Sequelize } = require('./database/db')
 const sequelize = require('./database/db')
@@ -9,13 +11,12 @@ const cron = require('./planeTask/index')
 
 
 const PORT = process.env.PORT || 5000
-const slackSigningSecret = '7f3a527ea87aff28f314b15e13db3dbf';
 
 const app = express()  
 
 app.use(cors())
 app.use(express.json())
-app.use('/api', router)
+app.use(process.env.DB_SERVER_APP_API, router)
 
 app.use('/', (req, res) => {
     res.json({message: 'work1', originalUrl: req.originalUrl, query: req.query, params: req.params, body: req.body})

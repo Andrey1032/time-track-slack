@@ -39,6 +39,7 @@ export default function ModalWindowEditDepartament({
         );
     };
     return (
+        <form>
         <div className="modal-window employee" ref={modalRef}>
             <div className="modal-content">
                 <p className="title">{title}</p>
@@ -119,6 +120,6 @@ export default function ModalWindowEditDepartament({
                     Сохранить
                 </div>
             </div>
-        </div>
+        </div></form>
     );
 }

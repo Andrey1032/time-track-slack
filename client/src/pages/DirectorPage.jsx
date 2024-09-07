@@ -7,40 +7,41 @@ import {
     fetchEmployees,
     fetchUserData,
     selectorCalendarData,
-    selectorCurrentEmployee,
     selectorDataEmployee,
     selectorDepartaments,
     selectorStatus,
     selectorStatusReload,
     selectorStatusUpdate,
+    selectorYears,
 } from "../assets/store/slices/employeesSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
 
 export default function DirectorPage() {
+    const { dep, user } = useParams();
+
     const dispatch = useDispatch();
-    // const director = useSelector((state) => state.user.userData);
     const statusReload = useSelector(selectorStatusReload);
+    const statusUpdate = useSelector(selectorStatusUpdate);
     const status = useSelector(selectorStatus);
     const departaments = useSelector(selectorDepartaments); //список сотрудников
     const dataEmp = useSelector(selectorDataEmployee); //данные выбранного сотрудника
-    const curEmp = useSelector(selectorCurrentEmployee);
     const calData = useSelector(selectorCalendarData);
-    const statusUpdate = useSelector(selectorStatusUpdate);
+    const years = useSelector(selectorYears);
+    useEffect(() => {
+        dispatch(
+            currentEmp({
+                dep: +dep,
+                user: +user,
+            })
+        );
+    }, [dep, dispatch, user]);
+    
     useEffect(() => {
         if (statusReload === "resolved" || statusReload === null) {
             dispatch(fetchEmployees());
         }
     }, [dispatch, statusReload]);
-
-    useEffect(() => {
-        if (curEmp === 0)
-            dispatch(
-                currentEmp({
-                    dep: 0,
-                    user: 0,
-                })
-            );
-    }, [departaments]);
 
     useEffect(() => {
         if (
@@ -49,14 +50,14 @@ export default function DirectorPage() {
         ) {
             dispatch(
                 fetchUserData({
-                    id_user:
-                        departaments[curEmp.dep]?.users[curEmp.user]?.id_user,
+                    id_user: departaments[+dep]?.users[+user]?.id_user,
                     month: calData.month,
                     year: calData.year,
                 })
             );
         }
-    }, [curEmp, dispatch, calData, departaments, statusUpdate]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dispatch, calData, departaments, statusUpdate, dep, user]);
 
     //управление модалками
     const modalAddEmployeeRef = useRef(null);
@@ -110,10 +111,7 @@ export default function DirectorPage() {
                 />
             )}
             <AppTableData
-                years={(Array.isArray(dataEmp)
-                    ? dataEmp[2]
-                    : dataEmp?.menuYear
-                )?.map((year) => ({
+                years={years?.map((year) => ({
                     value: year.toString(),
                     label: year.toString(),
                 }))}

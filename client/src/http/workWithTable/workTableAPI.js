@@ -6,7 +6,7 @@ import { updateStatusUpdate } from "../../assets/store/slices/employeesSlice";
 export const createWrittenOffTime = async (body) => {
     let data;
     store.dispatch(updateStatusUpdate("loading"));
-    $api.post("/writtenofftime", body)
+    $api.post(process.env.REACT_APP_WRITTEN_OFF_TIME, body)
         .then((response) => {
             data = response.data;
             store.dispatch(updateStatusUpdate("resolved"));
@@ -23,7 +23,7 @@ export const createUnderworking = async (body) => {
     let data;
     store.dispatch(updateStatusUpdate("loading"));
 
-    $api.post("/underworking", body)
+    $api.post(process.env.REACT_APP_UNDERWORKING, body)
         .then((response) => {
             data = response.data;
             store.dispatch(updateStatusUpdate("resolved"));
@@ -39,7 +39,7 @@ export const createReworking = async (body) => {
     let data;
     store.dispatch(updateStatusUpdate("loading"));
 
-    $api.post("/reworking", body)
+    $api.post(process.env.REACT_APP_REWORKING, body)
         .then((response) => {
             data = response.data;
             store.dispatch(updateStatusUpdate("resolved"));
@@ -56,7 +56,7 @@ export const createWorkingHours = async (body) => {
     let data;
     store.dispatch(updateStatusUpdate("loading"));
 
-    $api.post("/workinghours", body)
+    $api.post(process.env.REACT_APP_WORKING_HOURS, body)
         .then((response) => {
             data = response.data;
             store.dispatch(updateStatusUpdate("resolved"));
@@ -71,8 +71,11 @@ export const createWorkingHours = async (body) => {
 export const updateWorkingHours = async ({ params, body }) => {
     let data;
     store.dispatch(updateStatusUpdate("loading"));
-
-    $api.put(`/workinghours/${params.year}/${params.month}/${params.day}`, body)
+    console.log(params, body)
+    $api.put(
+        `${process.env.REACT_APP_WORKING_HOURS}/${params.year}/${params.month}/${params.day}`,
+        body
+    )
         .then((response) => {
             data = response.data;
             store.dispatch(updateStatusUpdate("resolved"));
@@ -89,7 +92,7 @@ export const deleteWorkingHours = async ({ params, body }) => {
     store.dispatch(updateStatusUpdate("loading"));
 
     $api.put(
-        `/workinghours/delete/${params.year}/${params.month}/${params.day}`,
+        `${process.env.REACT_APP_WORKING_HOURS_DELETE}/${params.year}/${params.month}/${params.day}`,
         body
     )
         .then((response) => {

@@ -3,7 +3,7 @@ const router = new Router();
 const axios = require("axios");
 
 const { createEventAdapter } = require("@slack/events-api");
-const slackSigningSecret = "7f3a527ea87aff28f314b15e13db3dbf";
+const slackSigningSecret = process.env.SLACK_SIGNAL_SECRET;
 
 const slackEvents = createEventAdapter(slackSigningSecret, {
   includeBody: true,
@@ -34,7 +34,7 @@ slackEvents.on("message", async (event, body) => {
     };
     try {
       const response = await axios({
-        url: `http://localhost:5000/api/message/update`,
+        url: process.env.SLACK_URL_UPDATE_MESSAGE,
         method: "put",
         data: data,
       });
@@ -47,7 +47,7 @@ slackEvents.on("message", async (event, body) => {
     };
     try {
       const response = await axios({
-        url: `http://localhost:5000/api/message/delete`,
+        url: process.env.SLACK_URL_DELETE_MESSAGE,
         method: "delete",
         data: data,
       });
@@ -55,7 +55,7 @@ slackEvents.on("message", async (event, body) => {
       console.log("Error adding song", error);
     }
   } else {
-    if (event.text == "start") {
+    if (event.text == process.env.SLACK_EVENT_TEXT_START) {
       let data = {
         start_time: formattedTime,
         date: formattedDate,
@@ -64,21 +64,21 @@ slackEvents.on("message", async (event, body) => {
       };
       try {
         const response = await axios({
-          url: `http://localhost:5000/api/workinghours`,
+          url: process.env.SLACK_URL_POST_START_MESSAGE,
           method: "post",
           data: data,
         });
       } catch (error) {
         console.log("Error adding song", error);
       }
-    } else if (event.text == "end") {
+    } else if (event.text == process.env.SLACK_EVENT_TEXT_END) {  
       let data = {
         end_time_new: formattedTime,
         slackIdUser: event.user,
       };
       try {
         const response = await axios({
-          url: `http://localhost:5000/api/workinghours/${year}/${month}/${day}`,
+          url: process.env.SLACK_URL_POST_END_MESSAGE,
           method: "put",
           data: data,
         });
@@ -98,7 +98,7 @@ slackEvents.on("message", async (event, body) => {
       };
       try {
         const response = await axios({
-          url: `http://localhost:5000/api/message`,
+          url: process.env.SLACK_URL_POST_CURRENT_MESSAGE,
           method: "post",
           data: data,
         });
@@ -109,6 +109,6 @@ slackEvents.on("message", async (event, body) => {
   }
 });
 
-router.use("/events", slackEvents.requestListener());
+router.use(process.env.SLACK_EVENTS_LISTENER_ROUTER, slackEvents.requestListener());
 
 module.exports = router;

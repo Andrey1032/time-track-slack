@@ -2,9 +2,9 @@ const Router = require('express')
 const router = new Router()
 const messageTypeController = require('../controllers/messageTypeController')
 
-router.post('/', messageTypeController.createMessageType)
-router.put('/:id_message_type', messageTypeController.updateMessageType)
-router.delete('/:id_message_type', messageTypeController.deleteMessageType)
+router.post(process.env.MESSAGE_TYPE_POST, messageTypeController.createMessageType)
+router.put(process.env.MESSAGE_TYPE_PUT, messageTypeController.updateMessageType)
+router.delete(process.env.MESSAGE_TYPE_DELETE, messageTypeController.deleteMessageType)
 
 
 module.exports = router

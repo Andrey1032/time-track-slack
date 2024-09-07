@@ -64,7 +64,7 @@ class MessageController {
         message_ts,
     } = req.body;
     try {
-      const message = await Message.destroy({ where: { message_ts: message_ts } });
+      const message = await Message.update({messageTypeChangeIdMessageTypeChange: 1}, { where: { message_ts: message_ts } });
       return res.json(message);
     } catch (error) {
       console.log(error);

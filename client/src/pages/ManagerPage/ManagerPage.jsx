@@ -4,27 +4,30 @@ import MenuUsers from "../../components/MenuUsers/MenuUsers";
 import { useClickOutSide } from "../../hooks/useClickOutSide";
 import { useDispatch, useSelector } from "react-redux";
 import {
+    currentEmp,
     fetchEmployees,
     fetchUserData,
     selectorCalendarData,
-    selectorCurrentEmployee,
     selectorDataEmployee,
     selectorEmployees,
     selectorStatus,
     selectorStatusReload,
     selectorStatusUpdate,
+    selectorYears,
 } from "../../assets/store/slices/employeesSlice";
+import { useParams } from "react-router-dom";
 
 export default function ManagerPage() {
     const dispatch = useDispatch();
     const manager = useSelector((state) => state.user.userData);
     const statusReload = useSelector(selectorStatusReload);
+    const statusUpdate = useSelector(selectorStatusUpdate);
     const status = useSelector(selectorStatus);
     const employees = useSelector(selectorEmployees); //список сотрудников
     const dataEmp = useSelector(selectorDataEmployee); //данные выбранного сотрудника
-    const currentEmp = useSelector(selectorCurrentEmployee);
     const calData = useSelector(selectorCalendarData);
-    const statusUpdate = useSelector(selectorStatusUpdate);
+    const years = useSelector(selectorYears);
+    const { user } = useParams();
     useEffect(() => {
         if (statusReload === "resolved" || statusReload === null) {
             dispatch(
@@ -33,19 +36,25 @@ export default function ManagerPage() {
                 })
             );
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [statusReload]);
+
+    useEffect(() => {
+        dispatch(currentEmp(+user));
+    }, [dispatch, user]);
 
     useEffect(() => {
         if (status === "resolved" && statusUpdate === "resolved") {
             dispatch(
                 fetchUserData({
-                    id_user: employees[currentEmp]?.id_user,
+                    id_user: employees[+user]?.id_user,
                     month: calData.month,
                     year: calData.year,
                 })
             );
         }
-    }, [employees, currentEmp, dispatch, calData, statusUpdate]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [employees, dispatch, calData, statusUpdate, user]);
 
     // Управление модалками
     const modalAddEmployeeRef = useRef(null);
@@ -75,10 +84,7 @@ export default function ManagerPage() {
             />
             {}
             <AppTableData
-                years={(Array.isArray(dataEmp)
-                    ? dataEmp[2]
-                    : dataEmp?.menuYear
-                )?.map((year) => ({
+                years={years?.map((year) => ({
                     value: year.toString(),
                     label: year.toString(),
                 }))}
