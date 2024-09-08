@@ -33,11 +33,11 @@ export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
     });
 
     const onSubmit = (values) => {
-        console.log(values)
+        console.log(values);
         dispatch(addEmployee(values));
         onChange(false);
     };
-
+    ///В разработке
     const searchUser = async (slack) => {
         let data;
         setLoader(true);
@@ -54,7 +54,7 @@ export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
         console.log(data);
     };
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form className="form" onSubmit={handleSubmit(onSubmit)}>
             <div className="modal-window employee" ref={modalRef}>
                 <div className="modal-content">
                     <p className="title">{title}</p>
@@ -69,9 +69,9 @@ export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
                         <svg
                             className="icon_search"
                             viewBox="0 0 18 18"
-                            onClick={() =>
-                                searchUser(this.values.aboutMeneg.slack)
-                            }
+                            onClick={() => {
+                                // searchUser(this.values.aboutMeneg.slack);
+                            }}
                         >
                             <path d="M12.5 11H11.71L11.43 10.73C12.41 9.59 13 8.11 13 6.5C13 2.91 10.09 0 6.5 0C2.91 0 0 2.91 0 6.5C0 10.09 2.91 13 6.5 13C8.11 13 9.59 12.41 10.73 11.43L11 11.71V12.5L16 17.49L17.49 16L12.5 11ZM6.5 11C4.01 11 2 8.99 2 6.5C2 4.01 4.01 2 6.5 2C8.99 2 11 4.01 11 6.5C11 8.99 8.99 11 6.5 11Z" />
                         </svg>
@@ -136,14 +136,15 @@ export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
                     </div>
                 </div>
                 <div className="modal-buttons">
-                    <div
+                    <button
+                        type="button"
                         className="modal-button-2"
                         onClick={() => {
                             onChange(false);
                         }}
                     >
                         Отмена
-                    </div>
+                    </button>
                     <button type="submit" className="modal-button-3">
                         Добавить
                     </button>

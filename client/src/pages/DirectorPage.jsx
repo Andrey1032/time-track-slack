@@ -12,7 +12,6 @@ import {
     selectorStatus,
     selectorStatusReload,
     selectorStatusUpdate,
-    selectorYears,
 } from "../assets/store/slices/employeesSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -27,7 +26,6 @@ export default function DirectorPage() {
     const departaments = useSelector(selectorDepartaments); //список сотрудников
     const dataEmp = useSelector(selectorDataEmployee); //данные выбранного сотрудника
     const calData = useSelector(selectorCalendarData);
-    const years = useSelector(selectorYears);
     useEffect(() => {
         dispatch(
             currentEmp({
@@ -111,7 +109,10 @@ export default function DirectorPage() {
                 />
             )}
             <AppTableData
-                years={years?.map((year) => ({
+                years={(Array.isArray(dataEmp)
+                    ? dataEmp[2]
+                    : dataEmp?.menuYear
+                )?.map((year) => ({
                     value: year.toString(),
                     label: year.toString(),
                 }))}

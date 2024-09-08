@@ -39,87 +39,91 @@ export default function ModalWindowEditDepartament({
         );
     };
     return (
-        <form>
-        <div className="modal-window employee" ref={modalRef}>
-            <div className="modal-content">
-                <p className="title">{title}</p>
+        <div className="form">
+            <div className="modal-window employee" ref={modalRef}>
+                <div className="modal-content">
+                    <p className="title">{title}</p>
 
-                <p className="subtitle">Данные отдела</p>
+                    <p className="subtitle">Данные отдела</p>
 
-                <div className="form__group">
-                    <input
-                        className="form__input"
-                        type="text"
-                        placeholder=" "
-                        value={nameDepartament}
-                        onChange={(e) => setnameDepartament(e.target.value)}
-                    />
-                    <label className="form__label">Название отдела</label>
+                    <div className="form__group">
+                        <input
+                            className="form__input"
+                            type="text"
+                            placeholder=" "
+                            value={nameDepartament}
+                            onChange={(e) => setnameDepartament(e.target.value)}
+                        />
+                        <label className="form__label">Название отдела</label>
+                    </div>
+
+                    <div className="form__group">
+                        <input
+                            className="form__input"
+                            type="text"
+                            placeholder=" "
+                            value={slackChanel}
+                            onChange={(e) => setSlackChanel(e.target.value)}
+                        />
+                        <label className="form__label">Канал в Slack</label>
+                    </div>
+
+                    <p className="subtitle">Руководитель</p>
+
+                    <div className="select">
+                        <AppSelect
+                            options={options}
+                            currentOption={currentEmp}
+                            setCurrentOption={setCurrentEmp}
+                            placeholder={"Выберете сотрудника"}
+                        />
+                    </div>
                 </div>
-
-                <div className="form__group">
-                    <input
-                        className="form__input"
-                        type="text"
-                        placeholder=" "
-                        value={slackChanel}
-                        onChange={(e) => setSlackChanel(e.target.value)}
-                    />
-                    <label className="form__label">Канал в Slack</label>
-                </div>
-
-                <p className="subtitle">Руководитель</p>
-
-                <div className="select">
-                    <AppSelect
-                        options={options}
-                        currentOption={currentEmp}
-                        setCurrentOption={setCurrentEmp}
-                        placeholder={"Выберете сотрудника"}
-                    />
-                </div>
-            </div>
-            <div className="modal-buttons">
-                <div
-                    className="modal-button-1"
-                    onClick={() => {
-                        if (departament.users.length > 0)
-                            return alert(
-                                `Пока ${nameDepartament} в есть сотрудники вы не можете его удалить!`
-                            );
-                        if (
-                            // eslint-disable-next-line no-restricted-globals
-                            confirm(
-                                `Вы уверены что хотите удалить ${nameDepartament}`
-                            )
-                        ) {
+                <div className="modal-buttons">
+                    <button
+                        type="button"
+                        className="modal-button-1"
+                        onClick={() => {
+                            if (departament.users.length > 0)
+                                return alert(
+                                    `Пока ${nameDepartament} в есть сотрудники вы не можете его удалить!`
+                                );
+                            if (
+                                // eslint-disable-next-line no-restricted-globals
+                                confirm(
+                                    `Вы уверены что хотите удалить ${nameDepartament}`
+                                )
+                            ) {
+                                onChange(false);
+                                dispatch(
+                                    deleteDepartment(departament.id_department)
+                                );
+                            }
+                        }}
+                    >
+                        Удалить
+                    </button>
+                    <button
+                        type="button"
+                        className="modal-button-2"
+                        onClick={() => {
                             onChange(false);
-                            dispatch(
-                                deleteDepartment(departament.id_department)
-                            );
-                        }
-                    }}
-                >
-                    Удалить
-                </div>
-                <div
-                    className="modal-button-2"
-                    onClick={() => {
-                        onChange(false);
-                    }}
-                >
-                    Отмена
-                </div>
-                <div
-                    className="modal-button-3"
-                    onClick={() => {
-                        onChange(false);
-                        handleClick();
-                    }}
-                >
-                    Сохранить
+                        }}
+                    >
+                        Отмена
+                    </button>
+                    <button
+                        type="button"
+                        className="modal-button-3"
+                        onClick={() => {
+                            onChange(false);
+                            handleClick();
+                        }}
+                    >
+                        Сохранить
+                    </button>
                 </div>
             </div>
-        </div></form>
+        </div>
     );
 }

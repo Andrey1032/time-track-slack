@@ -37,16 +37,6 @@ const userSlice = createSlice({
         selectorStatus: (state) => state.status,
         selectorStatusUpdate: (state) => state.statusUpdate,
         selectorCalendarData: (state) => state.calendarData,
-        selectorYears: (state) => {
-            if (state.statusStart) {
-                if (typeof state.currentEmp === "number") {
-                    return state.employees?.users[state.currentEmp]?.menuYear;
-                } else {
-                    return state.employees?.[state.currentEmp?.dep]
-                        ?.users[state.currentEmp?.user]?.menuYear;
-                }
-            }
-        },
     },
 
     reducers: (create) => ({
@@ -277,6 +267,5 @@ export const {
     selectorStatusReload,
     selectorCalendarData,
     selectorStatusUpdate,
-    selectorYears,
 } = userSlice.selectors;
 export default userSlice.reducer;

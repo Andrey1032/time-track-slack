@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
     createReworking,
     createUnderworking,
@@ -20,7 +20,7 @@ export default function ModalWindowAdd({
     modalRef,
     interval,
 }) {
-    const { register, handleSubmit } = useForm({
+    const { register, handleSubmit, getValues } = useForm({
         defaultValues: {
             valueStartTime: interval ? interval?.start : "00:00",
             valueEndTime: interval ? interval?.end : "00:00",
@@ -37,7 +37,6 @@ export default function ModalWindowAdd({
     );
     const user = useSelector((state) => state.user);
     const role = useSelector(selectorUserRole);
-    const [date, setDate] = useState(null);
     const dates = useSelector((state) =>
         interval
             ? state.employees?.userData[0]
@@ -51,7 +50,9 @@ export default function ModalWindowAdd({
         ) {
             return false;
         }
-        const intervals = dates.find((dat) => dat.date === date).worked_time;
+        const intervals = dates.find(
+            (dat) => dat.date === getValues("date")
+        ).worked_time;
 
         const flag = intervals
             .map(
@@ -105,12 +106,13 @@ export default function ModalWindowAdd({
                 !values.valueStartTime ||
                 !values.valueEndTime ||
                 !values.coment ||
-                !values.date ||
-                values.valueStartTime === values.valueEndTime
+                !values.date
             ) {
-                alert("Проверьте поля!");
+                values.valueStartTime === values.valueEndTime
+                    ? alert("Проверьте интервал времени")
+                    : alert("Проверьте поля!");
             } else {
-                if (checkInterval(values.valueStartTime, values.valueEndTime) ) {
+                if (checkInterval(values.valueStartTime, values.valueEndTime)) {
                     await createWorkingHours({
                         start_time: values.valueStartTime,
                         end_time: values.valueEndTime,
@@ -132,7 +134,7 @@ export default function ModalWindowAdd({
         }
     };
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form className="form" onSubmit={handleSubmit(onSubmit)}>
             <div className="modal-window" ref={modalRef}>
                 <div className="modal-content">
                     <p className="title">{title}</p>
@@ -140,7 +142,6 @@ export default function ModalWindowAdd({
                         type="date"
                         max={"2050-12-31"}
                         {...register("date")}
-                        onChange={(e) => setDate(e.target.value)}
                     />
 
                     <div className="inputs-time">
@@ -167,14 +168,15 @@ export default function ModalWindowAdd({
                     </div>
                 </div>
                 <div className="modal-buttons">
-                    <div
+                    <button
+                        type="button"
                         className="modal-button-2"
                         onClick={() => {
                             onChange(false);
                         }}
                     >
                         Отмена
-                    </div>
+                    </button>
                     <button className="modal-button-3" type="submit">
                         Добавить
                     </button>

@@ -147,139 +147,141 @@ class DepartmentController {
             })
           );
         });
-        departmentF.forEach((department, indexDep) => {
-          let year_user, menu, year_result;
-          if (department.users.length == 0) department.users[0] = {id_user: 0}
-          department.users.map((user, index) => {
-            let menuYear = [currentDate.getFullYear()];
-            do {
-              let firstDateCurrentYear;
-              let lastDateCurrentYear;
+        // departmentF.forEach((department, indexDep) => {
+        //   let year_user, menu, year_result;
+        //   if (department.users.length == 0) department.users[0] = {id_user: 0}
+        //   department.users.map((user, index) => {
 
-              async function get1() {
-                firstDateCurrentYear = await Calendar.findOne({
-                  where: {
-                    date: new Date(yearMenu, 1 - 1, 2)
-                      .toJSON()
-                      .substring(0, 10),
-                  },
-                });
+        //     let menuYear = [currentDate.getFullYear()];
+        //     do {
+        //       let firstDateCurrentYear;
+        //       let lastDateCurrentYear;
 
-                lastDateCurrentYear = await Calendar.findOne({
-                  where: {
-                    date: new Date(yearMenu, 12).toJSON().substring(0, 10),
-                  },
-                });
+        //       async function get1() {
+        //         firstDateCurrentYear = await Calendar.findOne({
+        //           where: {
+        //             date: new Date(yearMenu, 1 - 1, 2)
+        //               .toJSON()
+        //               .substring(0, 10),
+        //           },
+        //         });
 
-                if (!firstDateCurrentYear || !lastDateCurrentYear) return;
+        //         lastDateCurrentYear = await Calendar.findOne({
+        //           where: {
+        //             date: new Date(yearMenu, 12).toJSON().substring(0, 10),
+        //           },
+        //         });
 
-                year_user = await Working_Hours.findOne({
-                  where: {
-                    userIdUser: user.id_user,
-                    calendarIdCalendar: {
-                      [Sequelize.Op.between]: [
-                        firstDateCurrentYear.id_calendar,
-                        lastDateCurrentYear.id_calendar,
-                      ],
-                    },
-                  },
-                });
+        //         if (!firstDateCurrentYear || !lastDateCurrentYear) return;
 
-                if (year_user) {
-                  menuYear.push(yearMenu);
-                  yearMenu--;
-                }
+        //         year_user = await Working_Hours.findOne({
+        //           where: {
+        //             userIdUser: user.id_user,
+        //             calendarIdCalendar: {
+        //               [Sequelize.Op.between]: [
+        //                 firstDateCurrentYear.id_calendar,
+        //                 lastDateCurrentYear.id_calendar,
+        //               ],
+        //             },
+        //           },
+        //         });
 
-                //console.log(menuYear);
+        //         if (year_user) {
+        //           menuYear.push(yearMenu);
+        //           yearMenu--;
+        //         }
 
-                return menuYear;
-              }
+        //         //console.log(menuYear);
 
-              menu = get1();
-            } while (year_user);
+        //         return menuYear;
+        //       }
 
-            const menu2 = menu.then((result) => {
-              return result;
-            });
-            const menu3 = async () => {
-              user.menuYear = await menu2;
-              if (indexDep == departmentF.length - 1) {
-                if (user.id_user == 0) department.users.length = 0
-                return res.status(200).send(departmentF);
-              }
-            };
+        //       menu = get1();
+        //     } while (year_user);
 
-            menu3();
-          });
-        });
-        //return res.status(200).send(departmentF);
+        //     const menu2 = menu.then((result) => {
+        //       return result;
+        //     });
+        //     const menu3 = async () => {
+        //       user.menuYear = await menu2;
+        //       if (user.id_user == 0) department.users.length = 0
+        //       if (indexDep == departmentF.length - 1) {
+        //         console.log(departmentF)
+        //         return res.status(200).send(departmentF);
+        //       }
+        //     };
+
+        //     menu3();
+        //   });
+        // });
+        return res.status(200).send(departmentF);
       } else {
         departmentF.users.sort((a, b) =>
           a.surname.localeCompare(b.surname, undefined, { sensitivity: "base" })
         );
 
         let year_user, menu, year_result;
-        departmentF.users.map((user, index) => {
-          let menuYear = [currentDate.getFullYear()];
-          do {
-            let firstDateCurrentYear;
-            let lastDateCurrentYear;
+        // departmentF.users.map((user, index) => {
+        //   let menuYear = [currentDate.getFullYear()];
+        //   do {
+        //     let firstDateCurrentYear;
+        //     let lastDateCurrentYear;
 
-            async function get1() {
-              firstDateCurrentYear = await Calendar.findOne({
-                where: {
-                  date: new Date(yearMenu, 1 - 1, 2).toJSON().substring(0, 10),
-                },
-              });
+        //     async function get1() {
+        //       firstDateCurrentYear = await Calendar.findOne({
+        //         where: {
+        //           date: new Date(yearMenu, 1 - 1, 2).toJSON().substring(0, 10),
+        //         },
+        //       });
 
-              lastDateCurrentYear = await Calendar.findOne({
-                where: {
-                  date: new Date(yearMenu, 12).toJSON().substring(0, 10),
-                },
-              });
+        //       lastDateCurrentYear = await Calendar.findOne({
+        //         where: {
+        //           date: new Date(yearMenu, 12).toJSON().substring(0, 10),
+        //         },
+        //       });
 
-              if (!firstDateCurrentYear || !lastDateCurrentYear) return;
+        //       if (!firstDateCurrentYear || !lastDateCurrentYear) return;
 
-              year_user = await Working_Hours.findOne({
-                where: {
-                  userIdUser: user.id_user,
-                  calendarIdCalendar: {
-                    [Sequelize.Op.between]: [
-                      firstDateCurrentYear.id_calendar,
-                      lastDateCurrentYear.id_calendar,
-                    ],
-                  },
-                },
-              });
+        //       year_user = await Working_Hours.findOne({
+        //         where: {
+        //           userIdUser: user.id_user,
+        //           calendarIdCalendar: {
+        //             [Sequelize.Op.between]: [
+        //               firstDateCurrentYear.id_calendar,
+        //               lastDateCurrentYear.id_calendar,
+        //             ],
+        //           },
+        //         },
+        //       });
 
-              if (year_user) {
-                menuYear.push(yearMenu);
-                yearMenu--;
-              }
+        //       if (year_user) {
+        //         menuYear.push(yearMenu);
+        //         yearMenu--;
+        //       }
 
-              //console.log(menuYear);
+        //       //console.log(menuYear);
 
-              return menuYear;
-            }
+        //       return menuYear;
+        //     }
 
-            menu = get1();
-          } while (year_user);
+        //     menu = get1();
+        //   } while (year_user);
 
-          const menu2 = menu.then((result) => {
-            return result;
-          });
-          const menu3 = async () => {
-            user.menuYear = await menu2;
-            if (index == departmentF.users.length - 1) {
-              return res.status(200).send(departmentF);
-            }
-          };
+        //   const menu2 = menu.then((result) => {
+        //     return result;
+        //   });
+        //   const menu3 = async () => {
+        //     user.menuYear = await menu2;
+        //     if (index == departmentF.users.length - 1) {
+        //       return res.status(200).send(departmentF);
+        //     }
+        //   };
 
-          menu3();
-        });
+        //   menu3();
+        // });
       }
 
-      //return res.status(200).send(departmentF);
+      return res.status(200).send(departmentF);
     } catch (error) {
       console.log(error);
       return res.status(500).send("Ошибка получения отдела(отделов)");

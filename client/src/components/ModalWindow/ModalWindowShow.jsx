@@ -2,7 +2,7 @@ import React from "react";
 
 export default function ModalWindowShow({ title, onChange, modalRef, values }) {
     return (
-        <form>
+        <form className="form">
             <div className="modal-window" ref={modalRef}>
                 <div className="modal-content">
                     <p className="title">{title} </p>
@@ -11,14 +11,15 @@ export default function ModalWindowShow({ title, onChange, modalRef, values }) {
                     ))}
                 </div>
                 <div className="modal-buttons">
-                    <div
+                    <button
+                        type="button"
                         className="modal-button-3"
                         onClick={() => {
                             onChange(false);
                         }}
                     >
                         Закрыть
-                    </div>
+                    </button>
                 </div>
             </div>
         </form>

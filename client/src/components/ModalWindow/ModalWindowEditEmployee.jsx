@@ -7,6 +7,7 @@ import {
     selectorEmployees,
 } from "../../assets/store/slices/employeesSlice";
 import AppSelect from "../AppSelect/AppSelect";
+import { useForm } from "react-hook-form";
 
 export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
     const dispatch = useDispatch();
@@ -19,86 +20,82 @@ export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
 
     const [currentDep, setCurrentDep] = useState(
         typeof currentEmp === "object"
-            ? String(employee[currentEmp.dep].id_department)
-            : String(employee.id_department)
+            ? employee[currentEmp.dep].id_department
+            : employee.id_department
     );
 
     const options = employee?.map((dep) => ({
         label: dep.title,
         value: String(dep.id_department),
     }));
-    const handleClick = () => {
+    console.log(currentDep);
+    const { register, handleSubmit } = useForm({
+        defaultValues: {
+            params: {
+                surname:
+                    typeof currentEmp !== "object"
+                        ? employee[currentEmp]?.surname
+                        : employee[currentEmp.dep]?.users[currentEmp.user]
+                              ?.surname,
+                name:
+                    typeof currentEmp !== "object"
+                        ? employee[currentEmp]?.name
+                        : employee[currentEmp.dep]?.users[currentEmp.user]
+                              ?.name,
+                middle_name:
+                    typeof currentEmp !== "object"
+                        ? employee[currentEmp]?.middle_name
+                        : employee[currentEmp.dep]?.users[currentEmp.user]
+                              ?.middle_name,
+                slack:
+                    typeof currentEmp !== "object"
+                        ? employee[currentEmp]?.account_datum.slack
+                        : employee[currentEmp.dep]?.users[currentEmp.user]
+                              ?.account_datum.slack,
+                password: "",
+                login:
+                    typeof currentEmp !== "object"
+                        ? employee[currentEmp]?.account_datum.login
+                        : employee[currentEmp.dep]?.users[currentEmp.user]
+                              ?.account_datum.login,
+                userRoleIdUserRole: null,
+                departmentIdDepartment: currentDep,
+            },
+        },
+    });
+    const onSubmit = (values) => {
+        
         dispatch(
             typeof currentEmp === "object"
                 ? editEmployee({
                       id: employee[currentEmp.dep].users[currentEmp.user]
                           .id_user,
                       params: {
-                          surname: lastName,
-                          name: name,
-                          middle_name: middleName,
-                          slack: slack,
+                          ...values.params,
                           password:
-                              password.length === 0
+                              values.params.password === ""
                                   ? employee[currentEmp.dep].users[
                                         currentEmp.user
                                     ].password
-                                  : password,
-                          login: login,
-                          userRoleIdUserRole: null,
-                          departmentIdDepartment: Number(currentDep),
+                                  : values.params.password,
                       },
                   })
                 : editEmployee({
                       id: employee[currentEmp].id_user,
                       params: {
-                          surname: lastName,
-                          name: name,
-                          middle_name: middleName,
-                          slack: slack,
+                          ...values.params,
                           password:
-                              password.length === 0
+                              values.params.password === ""
                                   ? employee[currentEmp].password
-                                  : password,
-                          login: login,
-                          userRoleIdUserRole: null,
-                          departmentIdDepartment: Number(currentDep),
+                                  : values.params.password,
                       },
                   })
         );
+        onChange(false);
     };
-
-    const [lastName, setLastName] = useState(
-        typeof currentEmp !== "object"
-            ? employee[currentEmp]?.surname
-            : employee[currentEmp.dep]?.users[currentEmp.user]?.surname
-    );
-    const [name, setName] = useState(
-        typeof currentEmp !== "object"
-            ? employee[currentEmp]?.name
-            : employee[currentEmp.dep]?.users[currentEmp.user]?.name
-    );
-    const [middleName, setMiddleName] = useState(
-        typeof currentEmp !== "object"
-            ? employee[currentEmp]?.middle_name
-            : employee[currentEmp.dep]?.users[currentEmp.user]?.middle_name
-    );
-    const [slack, setSlack] = useState(
-        typeof currentEmp !== "object"
-            ? employee[currentEmp]?.account_datum.slack
-            : employee[currentEmp.dep]?.users[currentEmp.user]?.account_datum
-                  .slack
-    );
-    const [login, setLogin] = useState(
-        typeof currentEmp !== "object"
-            ? employee[currentEmp]?.account_datum.login
-            : employee[currentEmp.dep]?.users[currentEmp.user]?.account_datum
-                  .login
-    );
-    const [password, setPassword] = useState("");
     return (
-        <form>
-            <div className="modal-window employee" ref={modalRef}>
+        <form className="form" onSubmit={handleSubmit(onSubmit)}>
+            <div className="modal-window director" ref={modalRef}>
                 <div className="modal-content">
                     <p className="title">{title}</p>
                     {typeof currentEmp === "object" && (
@@ -117,8 +114,7 @@ export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
                             className="form__input"
                             type="text"
                             placeholder=" "
-                            value={slack}
-                            onChange={(e) => setSlack(e.target.value)}
+                            {...register("params.slack")}
                         />
                         <label className="form__label">ID в Slack</label>
                     </div>
@@ -128,8 +124,7 @@ export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
                             className="form__input"
                             type="text"
                             placeholder=" "
-                            value={lastName}
-                            onChange={(e) => setLastName(e.target.value)}
+                            {...register("params.surname")}
                         />
                         <label className="form__label">Фамилия</label>
                     </div>
@@ -139,8 +134,7 @@ export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
                             className="form__input"
                             type="text"
                             placeholder=" "
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            {...register("params.name")}
                         />
                         <label className="form__label">Имя</label>
                     </div>
@@ -150,8 +144,7 @@ export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
                             className="form__input"
                             type="text"
                             placeholder=" "
-                            value={middleName}
-                            onChange={(e) => setMiddleName(e.target.value)}
+                            {...register("params.middle_name")}
                         />
                         <label className="form__label">Отчество</label>
                     </div>
@@ -160,8 +153,7 @@ export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
                             className="form__input"
                             type="text"
                             placeholder=" "
-                            value={login}
-                            onChange={(e) => setLogin(e.target.value)}
+                            {...register("params.login")}
                         />
                         <label className="form__label">Логин</label>
                     </div>
@@ -170,30 +162,24 @@ export default function ModalWindowAddEmployee({ title, onChange, modalRef }) {
                             className="form__input"
                             type="text"
                             placeholder=" "
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            {...register("params.password")}
                         />
                         <label className="form__label">Пароль</label>
                     </div>
                 </div>
                 <div className="modal-buttons">
-                    <div
+                    <button
+                        type="button"
                         className="modal-button-2"
                         onClick={() => {
                             onChange(false);
                         }}
                     >
                         Отмена
-                    </div>
-                    <div
-                        className="modal-button-3"
-                        onClick={() => {
-                            onChange(false);
-                            handleClick();
-                        }}
-                    >
+                    </button>
+                    <button type="sumbit" className="modal-button-3">
                         Сохранить изменения
-                    </div>
+                    </button>
                 </div>
             </div>
         </form>

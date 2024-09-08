@@ -13,7 +13,6 @@ import {
     selectorStatus,
     selectorStatusReload,
     selectorStatusUpdate,
-    selectorYears,
 } from "../../assets/store/slices/employeesSlice";
 import { useParams } from "react-router-dom";
 
@@ -26,7 +25,6 @@ export default function ManagerPage() {
     const employees = useSelector(selectorEmployees); //список сотрудников
     const dataEmp = useSelector(selectorDataEmployee); //данные выбранного сотрудника
     const calData = useSelector(selectorCalendarData);
-    const years = useSelector(selectorYears);
     const { user } = useParams();
     useEffect(() => {
         if (statusReload === "resolved" || statusReload === null) {
@@ -84,7 +82,10 @@ export default function ManagerPage() {
             />
             {}
             <AppTableData
-                years={years?.map((year) => ({
+                years={(Array.isArray(dataEmp)
+                    ? dataEmp[2]
+                    : dataEmp?.menuYear
+                )?.map((year) => ({
                     value: year.toString(),
                     label: year.toString(),
                 }))}
