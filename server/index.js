@@ -4,7 +4,8 @@ const express = require('express')
 const { Sequelize } = require('./database/db')
 const sequelize = require('./database/db')
 const cors = require('cors')
-const model = require('./database/models')
+// const model = require('./database/models')
+const model = require('./database/modelsAll')
 const router = require('./routes/index')
 
 const cron = require('./planeTask/index')
@@ -19,7 +20,7 @@ app.use(express.json())
 app.use(process.env.DB_SERVER_APP_API, router)
 
 app.use('/', (req, res) => {
-    res.json({message: 'work1', originalUrl: req.originalUrl, query: req.query, params: req.params, body: req.body})
+    res.json({message: 'Нет url адреса', originalUrl: req.originalUrl, query: req.query, params: req.params, body: req.body})
 })
 
 const start = async () => {

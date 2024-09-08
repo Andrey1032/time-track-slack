@@ -1,14 +1,17 @@
 const Sequelize = require("sequelize");
-const { Calendar } = require("../database/models");
+// const { Calendar } = require("../database/models");
+const { Calendar } = require("../database/calendarModel");
 
 class CalendarController {
   async createCalendar(req, res) {
-    const {calendar} = req.body;
+    const { calendar } = req.body;
 
     let calendarMassiv = [];
 
     try {
-      const curYear = await Calendar.findOne({where: {date: new Date(calendar.year, 2).toJSON().substring(0, 10)}})
+      const curYear = await Calendar.findOne({
+        where: { date: new Date(calendar.year, 2).toJSON().substring(0, 10) },
+      });
       if (curYear) {
         return res.status(200).send("Календарь данного года загружен");
       }
@@ -72,7 +75,7 @@ class CalendarController {
 
       let monthCur = 1,
         massivDays = [],
-        date
+        date;
 
       _calendar.forEach((el) => {
         date = new Date(el.date);

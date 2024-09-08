@@ -1,20 +1,27 @@
 const bcrypt = require("bcrypt");
 const Sequelize = require("sequelize");
-//const { Sequelize } = require("../database/db");
-const {
-  User,
-  Message,
-  Working_Hours,
-  Reworking,
-  Underworking,
-  Reworking_month,
-  Underworking_month,
-  Calendar,
-  User_Role,
-  Department,
-  Writing_off_time,
-  Account_Data,
-} = require("../database/models");
+// const {
+//   User,
+//   Message,
+//   Working_Hours,
+//   Reworking,
+//   Underworking,
+//   Reworking_month,
+//   Underworking_month,
+//   Calendar,
+//   Writing_off_time,
+//   Account_Data,
+// } = require("../database/models");
+const { User } = require("../database/userModel");
+const { Message } = require("../database/messageModel");
+const { Working_Hours } = require("../database/workingHoursModel");
+const { Reworking } = require("../database/reworkingModel");
+const { Underworking } = require("../database/underworkingModel");
+const { Reworking_month } = require("../database/reworkingMonthModel");
+const { Underworking_month } = require("../database/underworkingMonthModel");
+const { Calendar } = require("../database/calendarModel");
+const { Writing_off_time } = require("../database/writtenOffTimeModel");
+const { Account_Data } = require("../database/accountDataModel");
 
 class UserController {
   async createUser(req, res) {
@@ -91,7 +98,6 @@ class UserController {
       console.log(error);
       return res.status(500).send("Ошибка получения информации о пользователе");
     }
-
 
     try {
       let dates = JSON.parse(
@@ -194,16 +200,17 @@ class UserController {
       });
       user = JSON.parse(JSON.stringify(user));
 
-      if (user.working_hours.length != 0){
+      if (user.working_hours.length != 0) {
         user.working_hours.forEach((element) => {
           let index = userF[0].findIndex((el) => {
             return element.calendar.date === el.date;
           });
-  
+
           if (!element.start_time && element.end_time)
             element.start_time = "--:--";
-          if (element.start_time && !element.end_time) element.end_time = "--:--";
-  
+          if (element.start_time && !element.end_time)
+            element.end_time = "--:--";
+
           if (index < 0 || userF[0].length == 0) {
             if (element.start_time !== null) {
               userF[0].push({
@@ -237,11 +244,11 @@ class UserController {
             });
           }
         });
-  
+
         userF[0].sort((a, b) => {
           return new Date(a.date) - new Date(b.date);
         });
-  
+
         user.reworkings.forEach((element) => {
           let index = userF[0].findIndex((el) => {
             return element.calendar.date === el.date;
@@ -254,7 +261,7 @@ class UserController {
             autocreater: autocreater,
           });
         });
-  
+
         user.underworkings.forEach((element) => {
           let index = userF[0].findIndex((el) => {
             return element.calendar.date === el.date;
@@ -267,28 +274,28 @@ class UserController {
             autocreater: autocreater,
           });
         });
-  
+
         user.messages.forEach((element) => {
           let index = userF[0].findIndex((el) => {
             return element.calendar.date === el.date;
           });
           const timeArr = element.time_message.split(":");
-          let typeMessage = ''
-          switch(element.messageTypeChangeIdMessageTypeChange){
+          let typeMessage = "";
+          switch (element.messageTypeChangeIdMessageTypeChange) {
             case 1: {
-              typeMessage = '(Удаленное)'
-              break
+              typeMessage = "(Удаленное)";
+              break;
             }
             case 2: {
-              typeMessage = '(Измененное)'
-              break
+              typeMessage = "(Измененное)";
+              break;
             }
           }
-          userF[0][index]?.otchet.push(`${timeArr[0]}:${timeArr[1]} - ${element.message_text} ${typeMessage}`);
+          userF[0][index]?.otchet.push(
+            `${timeArr[0]}:${timeArr[1]} - ${element.message_text} ${typeMessage}`
+          );
         });
       }
-
-
 
       // userF.underworking_months?.map((el) => {
       //   el.newDate = new moment(el.year + el.month, "YYYY-MM-DD");
@@ -343,7 +350,7 @@ class UserController {
           "00:00:00",
       });
 
-      userF.push(menuYear)
+      userF.push(menuYear);
 
       return res.status(200).send(userF);
       //return res.json(user)

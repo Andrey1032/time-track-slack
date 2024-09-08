@@ -1,12 +1,18 @@
 const Sequelize = require("sequelize");
-const {
-  Working_Hours,
-  Calendar,
-  User,
-  Account_Data,
-  Reworking,
-  Underworking,
-} = require("../database/models");
+// const {
+//   Working_Hours,
+//   Calendar,
+//   User,
+//   Account_Data,
+//   Reworking,
+//   Underworking,
+// } = require("../database/models");
+const { Working_Hours } = require("../database/workingHoursModel");
+const { Calendar } = require("../database/calendarModel");
+const { User } = require("../database/userModel");
+const { Account_Data } = require("../database/accountDataModel");
+const { Reworking } = require("../database/reworkingModel");
+const { Underworking } = require("../database/underworkingModel");
 
 class WorkingHoursController {
   async createWorkingHours(req, res) {
@@ -127,10 +133,23 @@ class WorkingHoursController {
                 ),
                 timeInterval
               );
-            } else if (s >= startLunchTime && s < endLunchTime) {
+            } else if (
+              (s < startLunchTime && e <= startLunchTime) ||
+              (s >= endLunchTime && e > endLunchTime)
+            ) {
+              timeInterval = sumTime(raznTime(e, s), timeInterval);
+            } else if (
+              s < startLunchTime &&
+              e >= startLunchTime &&
+              e <= endLunchTime
+            ) {
+              timeInterval = sumTime(raznTime(startLunchTime, s), timeInterval);
+            } else if (
+              s >= startLunchTime &&
+              s < endLunchTime &&
+              e > endLunchTime
+            ) {
               timeInterval = sumTime(raznTime(e, endLunchTime), timeInterval);
-            } else if (e > startLunchTime && e <= endLunchTime) {
-              timeInterval = sumTime(raznTime(startLunchTime, e), timeInterval);
             }
           } else if (e > endDayTime && s < startDayTime) {
             reworkingsTimes = sumTime(
@@ -172,7 +191,7 @@ class WorkingHoursController {
           } else if (e > endDayTime && s < endDayTime) {
             if (s >= startLunchTime && s < endLunchTime) {
               timeInterval = sumTime(
-                raznTime(endLunchTime, endDayTime),
+                raznTime(endDayTime, endLunchTime),
                 timeInterval
               );
               reworkingsTimes = sumTime(
@@ -203,7 +222,7 @@ class WorkingHoursController {
 
         underworkingsTimes = raznTime(dayHours, timeInterval);
 
-        if (reworkingsTimes != 0) {
+        if (reworkingsTimes !== 0) {
           if (reworking) {
             await Reworking.update(
               {
@@ -231,7 +250,9 @@ class WorkingHoursController {
               },
             });
           }
-        } else if (underworkingsTimes != 0) {
+        }
+        if (underworkingsTimes !== 0) {
+          console.log("underworkingsTimes !== 0");
           if (underworking) {
             await Underworking.update(
               {
@@ -239,7 +260,7 @@ class WorkingHoursController {
               },
               {
                 where: {
-                  id_inderworking: underworking.id_inderworking,
+                  id_underworking: underworking.id_underworking,
                 },
               }
             );
@@ -250,12 +271,13 @@ class WorkingHoursController {
               calendarIdCalendar: calendar.id_calendar,
               typeOverUnderWorkIdTypeOverUnderWork: 1,
             });
+            console.log("CREATE");
           }
         } else if (underworkingsTimes == 0) {
           if (underworking) {
             await Underworking.destroy({
               where: {
-                id_inderworking: underworking.id_inderworking,
+                id_underworking: underworking.id_underworking,
               },
             });
           }
@@ -273,7 +295,8 @@ class WorkingHoursController {
     const year = req.params.year;
     const month = req.params.month;
     const day = req.params.day;
-    const {
+
+    let {
       start_time_old,
       end_time_old,
       start_time_new,
@@ -284,7 +307,9 @@ class WorkingHoursController {
       workflowTimeTypeIdWorkflowTimeType,
       slackIdUser,
     } = req.body;
-    console.log("11111111111111111111111", req.body);
+    const calendar = await Calendar.findOne({
+      where: { date: `${year}-${month}-${day}` },
+    });
     if (slackIdUser) {
       try {
         const account = await Account_Data.findOne({
@@ -297,12 +322,16 @@ class WorkingHoursController {
           },
           attributes: ["id_user"],
         });
-        const calendar = await Calendar.findOne({
-          where: { date: `${year}-${month}-${day}` },
-        });
+
+        userIdUser = user.id_user;
 
         const workingHoursLast = await Working_Hours.findOne({
-          order: Sequelize.fn("max", Sequelize.Op.col("id_working_hours")),
+          attributes: [
+            [
+              Sequelize.fn("MAX", Sequelize.col("id_working_hours")),
+              "id_working_hours",
+            ],
+          ],
           where: {
             userIdUser: user.id_user,
             calendarIdCalendar: calendar.id_calendar,
@@ -310,7 +339,9 @@ class WorkingHoursController {
           },
         });
 
-        if (workingHoursLast) {
+        console.log("workingHoursLast", workingHoursLast.id_working_hours);
+
+        if (workingHoursLast.id_working_hours) {
           await Working_Hours.update(
             {
               end_time: end_time_new,
@@ -337,11 +368,20 @@ class WorkingHoursController {
           let date_1 = new Date(dateCurrent - 1);
 
           const calendarPast = await Calendar.findOne({
-            where: { date: `${date_1.getFullYear()}-${date_1.getMonth() + 1}-${date_1.getDate()}` },
+            where: {
+              date: `${date_1.getFullYear()}-${
+                date_1.getMonth() + 1
+              }-${date_1.getDate()}`,
+            },
           });
 
           const workingHoursLastPast = await Working_Hours.findOne({
-            order: Sequelize.fn("max", Sequelize.Op.col("id_working_hours")),
+            attributes: [
+              [
+                Sequelize.fn("MAX", Sequelize.col("id_working_hours")),
+                "id_working_hours",
+              ],
+            ],
             where: {
               userIdUser: user.id_user,
               calendarIdCalendar: calendarPast.id_calendar,
@@ -349,10 +389,15 @@ class WorkingHoursController {
             },
           });
 
-          if (workingHoursLastPast) {
+          console.log(
+            "workingHoursLastPast",
+            workingHoursLastPast.id_working_hours
+          );
+
+          if (workingHoursLastPast.id_working_hours) {
             await Working_Hours.update(
               {
-                end_time: '23:59:59',
+                end_time: "23:59:00",
               },
               {
                 where: {
@@ -399,38 +444,40 @@ class WorkingHoursController {
               const newTime = +timeArr[0] * 60 + +timeArr[1];
               return newTime;
             };
-    
+
             function sumTime(a, b) {
               if (a === null || b === null) return 0;
               let time = a + b;
               return time;
             }
-    
+
             function raznTime(b, a) {
               if (a === null || b === null) return 0;
               let time = b - a;
               return time;
             }
-    
+
             function timeConvert(time) {
               return `${Math.floor(time / 60)}:${
                 time % 60 < 10 ? `0${time % 60}` : `${time % 60}`
               }`;
             }
-    
+
             let timeInterval = 0,
               reworkingsTimes = 0,
               underworkingsTimes = 0;
             let dayHours = convertTime(process.env.TIME_WORKING_HOURS_8);
-            let startDayTime = convertTime(process.env.TIME_WORKING_HOURS_START);
+            let startDayTime = convertTime(
+              process.env.TIME_WORKING_HOURS_START
+            );
             let endDayTime = convertTime(process.env.TIME_WORKING_HOURS_END);
             let startLunchTime = convertTime(process.env.TIME_LUNCH_TIME_START);
             let endLunchTime = convertTime(process.env.TIME_LUNCH_TIME_END);
-    
+
             workingTimes.forEach((el) => {
               let s = convertTime(el.start_time),
                 e = convertTime(el.end_time);
-    
+
               if (s >= startDayTime && e <= endDayTime) {
                 if (s <= startLunchTime && e >= endLunchTime) {
                   timeInterval = sumTime(
@@ -440,10 +487,29 @@ class WorkingHoursController {
                     ),
                     timeInterval
                   );
-                } else if (s >= startLunchTime && s < endLunchTime) {
-                  timeInterval = sumTime(raznTime(e, endLunchTime), timeInterval);
-                } else if (e > startLunchTime && e <= endLunchTime) {
-                  timeInterval = sumTime(raznTime(startLunchTime, e), timeInterval);
+                } else if (
+                  (s < startLunchTime && e <= startLunchTime) ||
+                  (s >= endLunchTime && e > endLunchTime)
+                ) {
+                  timeInterval = sumTime(raznTime(e, s), timeInterval);
+                } else if (
+                  s < startLunchTime &&
+                  e >= startLunchTime &&
+                  e <= endLunchTime
+                ) {
+                  timeInterval = sumTime(
+                    raznTime(startLunchTime, s),
+                    timeInterval
+                  );
+                } else if (
+                  s >= startLunchTime &&
+                  s < endLunchTime &&
+                  e > endLunchTime
+                ) {
+                  timeInterval = sumTime(
+                    raznTime(e, endLunchTime),
+                    timeInterval
+                  );
                 }
               } else if (e > endDayTime && s < startDayTime) {
                 reworkingsTimes = sumTime(
@@ -476,7 +542,10 @@ class WorkingHoursController {
                     reworkingsTimes
                   );
                 } else {
-                  timeInterval = sumTime(raznTime(e, startDayTime), timeInterval);
+                  timeInterval = sumTime(
+                    raznTime(e, startDayTime),
+                    timeInterval
+                  );
                   reworkingsTimes = sumTime(
                     raznTime(startDayTime, s),
                     reworkingsTimes
@@ -485,7 +554,7 @@ class WorkingHoursController {
               } else if (e > endDayTime && s < endDayTime) {
                 if (s >= startLunchTime && s < endLunchTime) {
                   timeInterval = sumTime(
-                    raznTime(endLunchTime, endDayTime),
+                    raznTime(endDayTime, endLunchTime),
                     timeInterval
                   );
                   reworkingsTimes = sumTime(
@@ -513,10 +582,10 @@ class WorkingHoursController {
                 }
               }
             });
-    
+
             underworkingsTimes = raznTime(dayHours, timeInterval);
-    
-            if (reworkingsTimes != 0) {
+
+            if (reworkingsTimes !== 0) {
               if (reworking) {
                 await Reworking.update(
                   {
@@ -531,7 +600,7 @@ class WorkingHoursController {
               } else {
                 await Reworking.create({
                   time_reworking: timeConvert(reworkingsTimes),
-                  userIdUser: user.id_user,
+                  userIdUser: userIdUser,
                   calendarIdCalendar: calendar.id_calendar,
                   typeOverUnderWorkIdTypeOverUnderWork: 1,
                 });
@@ -544,7 +613,8 @@ class WorkingHoursController {
                   },
                 });
               }
-            } else if (underworkingsTimes != 0) {
+            }
+            if (underworkingsTimes !== 0) {
               if (underworking) {
                 await Underworking.update(
                   {
@@ -552,245 +622,30 @@ class WorkingHoursController {
                   },
                   {
                     where: {
-                      id_inderworking: underworking.id_inderworking,
+                      id_underworking: underworking.id_underworking,
                     },
                   }
                 );
               } else {
                 await Underworking.create({
                   time_underworking: timeConvert(underworkingsTimes),
-                  userIdUser: user.id_user,
+                  userIdUser: userIdUser,
                   calendarIdCalendar: calendar.id_calendar,
                   typeOverUnderWorkIdTypeOverUnderWork: 1,
                 });
+                console.log("CREATE");
               }
             } else if (underworkingsTimes == 0) {
               if (underworking) {
                 await Underworking.destroy({
                   where: {
-                    id_inderworking: underworking.id_inderworking,
+                    id_underworking: underworking.id_underworking,
                   },
                 });
               }
             }
-
-          }
-
-        }
-
-        let underworking = JSON.parse(
-          JSON.stringify(
-            await Underworking.findOne({
-              where: {
-                userIdUser: user.id_user,
-                calendarIdCalendar: calendar.id_calendar,
-                typeOverUnderWorkIdTypeOverUnderWork: 1,
-              },
-            })
-          )
-        );
-        let reworking = JSON.parse(
-          JSON.stringify(
-            await Reworking.findOne({
-              where: {
-                userIdUser: user.id_user,
-                calendarIdCalendar: calendar.id_calendar,
-                typeOverUnderWorkIdTypeOverUnderWork: 1,
-              },
-            })
-          )
-        );
-        let workingTimes = JSON.parse(
-          JSON.stringify(
-            await Working_Hours.findAll({
-              where: {
-                userIdUser: user.id_user,
-                calendarIdCalendar: calendar.id_calendar,
-              },
-            })
-          )
-        );
-        const convertTime = (time) => {
-          if (time === null) return 0;
-          const timeArr = time.split(":");
-          const newTime = +timeArr[0] * 60 + +timeArr[1];
-          return newTime;
-        };
-
-        function sumTime(a, b) {
-          if (a === null || b === null) return 0;
-          let time = a + b;
-          return time;
-        }
-
-        function raznTime(b, a) {
-          if (a === null || b === null) return 0;
-          let time = b - a;
-          return time;
-        }
-
-        function timeConvert(time) {
-          return `${Math.floor(time / 60)}:${
-            time % 60 < 10 ? `0${time % 60}` : `${time % 60}`
-          }`;
-        }
-
-        let timeInterval = 0,
-          reworkingsTimes = 0,
-          underworkingsTimes = 0;
-        let dayHours = convertTime(process.env.TIME_WORKING_HOURS_8);
-        let startDayTime = convertTime(process.env.TIME_WORKING_HOURS_START);
-        let endDayTime = convertTime(process.env.TIME_WORKING_HOURS_END);
-        let startLunchTime = convertTime(process.env.TIME_LUNCH_TIME_START);
-        let endLunchTime = convertTime(process.env.TIME_LUNCH_TIME_END);
-
-        workingTimes.forEach((el) => {
-          let s = convertTime(el.start_time),
-            e = convertTime(el.end_time);
-
-          if (s >= startDayTime && e <= endDayTime) {
-            if (s <= startLunchTime && e >= endLunchTime) {
-              timeInterval = sumTime(
-                raznTime(
-                  raznTime(e, s),
-                  raznTime(endLunchTime, startLunchTime)
-                ),
-                timeInterval
-              );
-            } else if (s >= startLunchTime && s < endLunchTime) {
-              timeInterval = sumTime(raznTime(e, endLunchTime), timeInterval);
-            } else if (e > startLunchTime && e <= endLunchTime) {
-              timeInterval = sumTime(raznTime(startLunchTime, e), timeInterval);
-            }
-          } else if (e > endDayTime && s < startDayTime) {
-            reworkingsTimes = sumTime(
-              sumTime(raznTime(startDayTime, s), raznTime(e, endDayTime)),
-              reworkingsTimes
-            );
-            timeInterval = dayHours;
-          } else if (e <= startDayTime || s >= endDayTime) {
-            reworkingsTimes = sumTime(raznTime(e, s), reworkingsTimes);
-          } else if (e > startDayTime && s < startDayTime) {
-            if (e >= endLunchTime) {
-              timeInterval = sumTime(
-                sumTime(
-                  raznTime(e, startDayTime),
-                  raznTime(endLunchTime, startLunchTime)
-                ),
-                timeInterval
-              );
-              reworkingsTimes = sumTime(
-                raznTime(startDayTime, s),
-                reworkingsTimes
-              );
-            } else if (e > startLunchTime && e <= endLunchTime) {
-              timeInterval = sumTime(
-                raznTime(startLunchTime, startDayTime),
-                timeInterval
-              );
-              reworkingsTimes = sumTime(
-                raznTime(startDayTime, s),
-                reworkingsTimes
-              );
-            } else {
-              timeInterval = sumTime(raznTime(e, startDayTime), timeInterval);
-              reworkingsTimes = sumTime(
-                raznTime(startDayTime, s),
-                reworkingsTimes
-              );
-            }
-          } else if (e > endDayTime && s < endDayTime) {
-            if (s >= startLunchTime && s < endLunchTime) {
-              timeInterval = sumTime(
-                raznTime(endLunchTime, endDayTime),
-                timeInterval
-              );
-              reworkingsTimes = sumTime(
-                raznTime(e, endDayTime),
-                reworkingsTimes
-              );
-            } else if (s < startLunchTime) {
-              timeInterval = sumTime(
-                raznTime(
-                  raznTime(endDayTime, s),
-                  raznTime(endLunchTime, startLunchTime)
-                ),
-                timeInterval
-              );
-              reworkingsTimes = sumTime(
-                raznTime(e, endDayTime),
-                reworkingsTimes
-              );
-            } else {
-              timeInterval = sumTime(raznTime(endDayTime, s), timeInterval);
-              reworkingsTimes = sumTime(
-                raznTime(e, endDayTime),
-                reworkingsTimes
-              );
-            }
-          }
-        });
-
-        underworkingsTimes = raznTime(dayHours, timeInterval);
-
-        if (reworkingsTimes != 0) {
-          if (reworking) {
-            await Reworking.update(
-              {
-                time_reworking: timeConvert(reworkingsTimes),
-              },
-              {
-                where: {
-                  id_reworking: reworking.id_reworking,
-                },
-              }
-            );
-          } else {
-            await Reworking.create({
-              time_reworking: timeConvert(reworkingsTimes),
-              userIdUser: user.id_user,
-              calendarIdCalendar: calendar.id_calendar,
-              typeOverUnderWorkIdTypeOverUnderWork: 1,
-            });
-          }
-        } else if (reworkingsTimes == 0) {
-          if (reworking) {
-            await Reworking.destroy({
-              where: {
-                id_reworking: reworking.id_reworking,
-              },
-            });
-          }
-        } else if (underworkingsTimes != 0) {
-          if (underworking) {
-            await Underworking.update(
-              {
-                time_underworking: timeConvert(underworkingsTimes),
-              },
-              {
-                where: {
-                  id_inderworking: underworking.id_inderworking,
-                },
-              }
-            );
-          } else {
-            await Underworking.create({
-              time_underworking: timeConvert(underworkingsTimes),
-              userIdUser: user.id_user,
-              calendarIdCalendar: calendar.id_calendar,
-              typeOverUnderWorkIdTypeOverUnderWork: 1,
-            });
-          }
-        } else if (underworkingsTimes == 0) {
-          if (underworking) {
-            await Underworking.destroy({
-              where: {
-                id_inderworking: underworking.id_inderworking,
-              },
-            });
           }
         }
-        return res.json();
       } catch (error) {
         console.log(error);
         return res.status(500).send("Ошибка обновления рабочего времени");
@@ -804,7 +659,8 @@ class WorkingHoursController {
         const calendar = await Calendar.findOne({
           where: { date: `${year}-${month}-${day}` },
         });
-        const workingHours = await Working_Hours.update(
+
+        const workingHoursNew = await Working_Hours.update(
           {
             start_time: start_time_new,
             end_time: end_time_new,
@@ -821,226 +677,222 @@ class WorkingHoursController {
             },
           }
         );
-
-        let underworking = JSON.parse(
-          JSON.stringify(
-            await Underworking.findOne({
-              where: {
-                userIdUser: userIdUser,
-                calendarIdCalendar: calendar.id_calendar,
-                typeOverUnderWorkIdTypeOverUnderWork: 1,
-              },
-            })
-          )
-        );
-        let reworking = JSON.parse(
-          JSON.stringify(
-            await Reworking.findOne({
-              where: {
-                userIdUser: userIdUser,
-                calendarIdCalendar: calendar.id_calendar,
-                typeOverUnderWorkIdTypeOverUnderWork: 1,
-              },
-            })
-          )
-        );
-        let workingTimes = JSON.parse(
-          JSON.stringify(
-            await Working_Hours.findAll({
-              where: {
-                userIdUser: userIdUser,
-                calendarIdCalendar: calendar.id_calendar,
-              },
-            })
-          )
-        );
-        const convertTime = (time) => {
-          if (time === null) return 0;
-          const timeArr = time.split(":");
-          const newTime = +timeArr[0] * 60 + +timeArr[1];
-          return newTime;
-        };
-
-        function sumTime(a, b) {
-          if (a === null || b === null) return 0;
-          let time = a + b;
-          return time;
-        }
-
-        function raznTime(b, a) {
-          if (a === null || b === null) return 0;
-          let time = b - a;
-          return time;
-        }
-
-        function timeConvert(time) {
-          return `${Math.floor(time / 60)}:${
-            time % 60 < 10 ? `0${time % 60}` : `${time % 60}`
-          }`;
-        }
-
-        let timeInterval = 0,
-          reworkingsTimes = 0,
-          underworkingsTimes = 0;
-        let dayHours = convertTime(process.env.TIME_WORKING_HOURS_8);
-        let startDayTime = convertTime(process.env.TIME_WORKING_HOURS_START);
-        let endDayTime = convertTime(process.env.TIME_WORKING_HOURS_END);
-        let startLunchTime = convertTime(process.env.TIME_LUNCH_TIME_START);
-        let endLunchTime = convertTime(process.env.TIME_LUNCH_TIME_END);
-
-        workingTimes.forEach((el) => {
-          let s = convertTime(el.start_time),
-            e = convertTime(el.end_time);
-
-          if (s >= startDayTime && e <= endDayTime) {
-            if (s <= startLunchTime && e >= endLunchTime) {
-              timeInterval = sumTime(
-                raznTime(
-                  raznTime(e, s),
-                  raznTime(endLunchTime, startLunchTime)
-                ),
-                timeInterval
-              );
-            } else if (s >= startLunchTime && s < endLunchTime) {
-              timeInterval = sumTime(raznTime(e, endLunchTime), timeInterval);
-            } else if (e > startLunchTime && e <= endLunchTime) {
-              timeInterval = sumTime(raznTime(startLunchTime, e), timeInterval);
-            }
-          } else if (e > endDayTime && s < startDayTime) {
-            reworkingsTimes = sumTime(
-              sumTime(raznTime(startDayTime, s), raznTime(e, endDayTime)),
-              reworkingsTimes
-            );
-            timeInterval = dayHours;
-          } else if (e <= startDayTime || s >= endDayTime) {
-            reworkingsTimes = sumTime(raznTime(e, s), reworkingsTimes);
-          } else if (e > startDayTime && s < startDayTime) {
-            if (e >= endLunchTime) {
-              timeInterval = sumTime(
-                sumTime(
-                  raznTime(e, startDayTime),
-                  raznTime(endLunchTime, startLunchTime)
-                ),
-                timeInterval
-              );
-              reworkingsTimes = sumTime(
-                raznTime(startDayTime, s),
-                reworkingsTimes
-              );
-            } else if (e > startLunchTime && e <= endLunchTime) {
-              timeInterval = sumTime(
-                raznTime(startLunchTime, startDayTime),
-                timeInterval
-              );
-              reworkingsTimes = sumTime(
-                raznTime(startDayTime, s),
-                reworkingsTimes
-              );
-            } else {
-              timeInterval = sumTime(raznTime(e, startDayTime), timeInterval);
-              reworkingsTimes = sumTime(
-                raznTime(startDayTime, s),
-                reworkingsTimes
-              );
-            }
-          } else if (e > endDayTime && s < endDayTime) {
-            if (s >= startLunchTime && s < endLunchTime) {
-              timeInterval = sumTime(
-                raznTime(endLunchTime, endDayTime),
-                timeInterval
-              );
-              reworkingsTimes = sumTime(
-                raznTime(e, endDayTime),
-                reworkingsTimes
-              );
-            } else if (s < startLunchTime) {
-              timeInterval = sumTime(
-                raznTime(
-                  raznTime(endDayTime, s),
-                  raznTime(endLunchTime, startLunchTime)
-                ),
-                timeInterval
-              );
-              reworkingsTimes = sumTime(
-                raznTime(e, endDayTime),
-                reworkingsTimes
-              );
-            } else {
-              timeInterval = sumTime(raznTime(endDayTime, s), timeInterval);
-              reworkingsTimes = sumTime(
-                raznTime(e, endDayTime),
-                reworkingsTimes
-              );
-            }
-          }
-        });
-
-        underworkingsTimes = raznTime(dayHours, timeInterval);
-
-        if (reworkingsTimes != 0) {
-          if (reworking) {
-            await Reworking.update(
-              {
-                time_reworking: timeConvert(reworkingsTimes),
-              },
-              {
-                where: {
-                  id_reworking: reworking.id_reworking,
-                },
-              }
-            );
-          } else {
-            await Reworking.create({
-              time_reworking: timeConvert(reworkingsTimes),
-              userIdUser: userIdUser,
-              calendarIdCalendar: calendar.id_calendar,
-              typeOverUnderWorkIdTypeOverUnderWork: 1,
-            });
-          }
-        } else if (reworkingsTimes == 0) {
-          if (reworking) {
-            await Reworking.destroy({
-              where: {
-                id_reworking: reworking.id_reworking,
-              },
-            });
-          }
-        } else if (underworkingsTimes != 0) {
-          if (underworking) {
-            await Underworking.update(
-              {
-                time_underworking: timeConvert(underworkingsTimes),
-              },
-              {
-                where: {
-                  id_inderworking: underworking.id_inderworking,
-                },
-              }
-            );
-          } else {
-            await Underworking.create({
-              time_underworking: timeConvert(underworkingsTimes),
-              userIdUser: userIdUser,
-              calendarIdCalendar: calendar.id_calendar,
-              typeOverUnderWorkIdTypeOverUnderWork: 1,
-            });
-          }
-        } else if (underworkingsTimes == 0) {
-          if (underworking) {
-            await Underworking.destroy({
-              where: {
-                id_inderworking: underworking.id_inderworking,
-              },
-            });
-          }
-        }
-
-        return res.json(workingHours);
       } catch (error) {
         console.log(error);
         return res.status(500).send("Ошибка обновления рабочего времени");
       }
     }
+
+    let underworking = JSON.parse(
+      JSON.stringify(
+        await Underworking.findOne({
+          where: {
+            userIdUser: userIdUser,
+            calendarIdCalendar: calendar.id_calendar,
+            typeOverUnderWorkIdTypeOverUnderWork: 1,
+          },
+        })
+      )
+    );
+    let reworking = JSON.parse(
+      JSON.stringify(
+        await Reworking.findOne({
+          where: {
+            userIdUser: userIdUser,
+            calendarIdCalendar: calendar.id_calendar,
+            typeOverUnderWorkIdTypeOverUnderWork: 1,
+          },
+        })
+      )
+    );
+
+    let workingTimes = JSON.parse(
+      JSON.stringify(
+        await Working_Hours.findAll({
+          where: {
+            userIdUser: userIdUser,
+            calendarIdCalendar: calendar.id_calendar,
+          },
+        })
+      )
+    );
+
+    const convertTime = (time) => {
+      if (time === null) return 0;
+      const timeArr = time.split(":");
+      const newTime = +timeArr[0] * 60 + +timeArr[1];
+      return newTime;
+    };
+
+    function sumTime(a, b) {
+      if (a === null || b === null) return 0;
+      let time = a + b;
+      return time;
+    }
+
+    function raznTime(b, a) {
+      if (a === null || b === null) return 0;
+      let time = b - a;
+      return time;
+    }
+
+    function timeConvert(time) {
+      return `${Math.floor(time / 60)}:${
+        time % 60 < 10 ? `0${time % 60}` : `${time % 60}`
+      }`;
+    }
+
+    let timeInterval = 0,
+      reworkingsTimes = 0,
+      underworkingsTimes = 0;
+    let dayHours = convertTime(process.env.TIME_WORKING_HOURS_8);
+    let startDayTime = convertTime(process.env.TIME_WORKING_HOURS_START);
+    let endDayTime = convertTime(process.env.TIME_WORKING_HOURS_END);
+    let startLunchTime = convertTime(process.env.TIME_LUNCH_TIME_START);
+    let endLunchTime = convertTime(process.env.TIME_LUNCH_TIME_END);
+
+    workingTimes.forEach((el) => {
+      let s = convertTime(el.start_time),
+        e = convertTime(el.end_time);
+
+      if (s >= startDayTime && e <= endDayTime) {
+        if (s <= startLunchTime && e >= endLunchTime) {
+          timeInterval = sumTime(
+            raznTime(raznTime(e, s), raznTime(endLunchTime, startLunchTime)),
+            timeInterval
+          );
+        } else if (
+          (s < startLunchTime && e <= startLunchTime) ||
+          (s >= endLunchTime && e > endLunchTime)
+        ) {
+          timeInterval = sumTime(raznTime(e, s), timeInterval);
+        } else if (
+          s < startLunchTime &&
+          e >= startLunchTime &&
+          e <= endLunchTime
+        ) {
+          timeInterval = sumTime(raznTime(startLunchTime, s), timeInterval);
+        } else if (
+          s >= startLunchTime &&
+          s < endLunchTime &&
+          e > endLunchTime
+        ) {
+          timeInterval = sumTime(raznTime(e, endLunchTime), timeInterval);
+        }
+      } else if (e > endDayTime && s < startDayTime) {
+        reworkingsTimes = sumTime(
+          sumTime(raznTime(startDayTime, s), raznTime(e, endDayTime)),
+          reworkingsTimes
+        );
+        timeInterval = dayHours;
+      } else if (e <= startDayTime || s >= endDayTime) {
+        reworkingsTimes = sumTime(raznTime(e, s), reworkingsTimes);
+      } else if (e > startDayTime && s < startDayTime) {
+        if (e >= endLunchTime) {
+          timeInterval = sumTime(
+            raznTime(
+              raznTime(e, startDayTime),
+              raznTime(endLunchTime, startLunchTime)
+            ),
+            timeInterval
+          );
+          reworkingsTimes = sumTime(raznTime(startDayTime, s), reworkingsTimes);
+        } else if (e > startLunchTime && e <= endLunchTime) {
+          timeInterval = sumTime(
+            raznTime(startLunchTime, startDayTime),
+            timeInterval
+          );
+          reworkingsTimes = sumTime(raznTime(startDayTime, s), reworkingsTimes);
+        } else {
+          timeInterval = sumTime(raznTime(e, startDayTime), timeInterval);
+          reworkingsTimes = sumTime(raznTime(startDayTime, s), reworkingsTimes);
+        }
+      } else if (e > endDayTime && s < endDayTime) {
+        if (s >= startLunchTime && s < endLunchTime) {
+          timeInterval = sumTime(
+            raznTime(endDayTime, endLunchTime),
+            timeInterval
+          );
+          reworkingsTimes = sumTime(raznTime(e, endDayTime), reworkingsTimes);
+        } else if (s < startLunchTime) {
+          timeInterval = sumTime(
+            raznTime(
+              raznTime(endDayTime, s),
+              raznTime(endLunchTime, startLunchTime)
+            ),
+            timeInterval
+          );
+          reworkingsTimes = sumTime(raznTime(e, endDayTime), reworkingsTimes);
+        } else {
+          timeInterval = sumTime(raznTime(endDayTime, s), timeInterval);
+          reworkingsTimes = sumTime(raznTime(e, endDayTime), reworkingsTimes);
+        }
+      }
+    });
+
+    underworkingsTimes = raznTime(dayHours, timeInterval);
+
+    if (reworkingsTimes !== 0) {
+      if (reworking) {
+        await Reworking.update(
+          {
+            time_reworking: timeConvert(reworkingsTimes),
+          },
+          {
+            where: {
+              id_reworking: reworking.id_reworking,
+            },
+          }
+        );
+      } else {
+        await Reworking.create({
+          time_reworking: timeConvert(reworkingsTimes),
+          userIdUser: userIdUser,
+          calendarIdCalendar: calendar.id_calendar,
+          typeOverUnderWorkIdTypeOverUnderWork: 1,
+        });
+      }
+    } else if (reworkingsTimes == 0) {
+      if (reworking) {
+        await Reworking.destroy({
+          where: {
+            id_reworking: reworking.id_reworking,
+          },
+        });
+      }
+    }
+    if (underworkingsTimes !== 0) {
+      if (underworking) {
+        await Underworking.update(
+          {
+            time_underworking: timeConvert(underworkingsTimes),
+          },
+          {
+            where: {
+              id_underworking: underworking.id_underworking,
+            },
+          }
+        );
+      } else {
+        await Underworking.create({
+          time_underworking: timeConvert(underworkingsTimes),
+          userIdUser: userIdUser,
+          calendarIdCalendar: calendar.id_calendar,
+          typeOverUnderWorkIdTypeOverUnderWork: 1,
+        });
+        console.log("CREATE");
+      }
+    } else if (underworkingsTimes == 0) {
+      if (underworking) {
+        await Underworking.destroy({
+          where: {
+            id_underworking: underworking.id_underworking,
+          },
+        });
+      }
+    }
+
+    return res.json(200);
   }
 
   async deleteWorkingHours(req, res) {
@@ -1048,6 +900,7 @@ class WorkingHoursController {
     const year = req.params.year;
     const month = req.params.month;
     const day = req.params.day;
+
     const {
       start_time_old,
       end_time_old,
@@ -1157,10 +1010,23 @@ class WorkingHoursController {
               raznTime(raznTime(e, s), raznTime(endLunchTime, startLunchTime)),
               timeInterval
             );
-          } else if (s >= startLunchTime && s < endLunchTime) {
+          } else if (
+            (s < startLunchTime && e <= startLunchTime) ||
+            (s >= endLunchTime && e > endLunchTime)
+          ) {
+            timeInterval = sumTime(raznTime(e, s), timeInterval);
+          } else if (
+            s < startLunchTime &&
+            e >= startLunchTime &&
+            e <= endLunchTime
+          ) {
+            timeInterval = sumTime(raznTime(startLunchTime, s), timeInterval);
+          } else if (
+            s >= startLunchTime &&
+            s < endLunchTime &&
+            e > endLunchTime
+          ) {
             timeInterval = sumTime(raznTime(e, endLunchTime), timeInterval);
-          } else if (e > startLunchTime && e <= endLunchTime) {
-            timeInterval = sumTime(raznTime(startLunchTime, e), timeInterval);
           }
         } else if (e > endDayTime && s < startDayTime) {
           reworkingsTimes = sumTime(
@@ -1202,7 +1068,7 @@ class WorkingHoursController {
         } else if (e > endDayTime && s < endDayTime) {
           if (s >= startLunchTime && s < endLunchTime) {
             timeInterval = sumTime(
-              raznTime(endLunchTime, endDayTime),
+              raznTime(endDayTime, endLunchTime),
               timeInterval
             );
             reworkingsTimes = sumTime(raznTime(e, endDayTime), reworkingsTimes);
@@ -1224,7 +1090,7 @@ class WorkingHoursController {
 
       underworkingsTimes = raznTime(dayHours, timeInterval);
 
-      if (reworkingsTimes != 0) {
+      if (reworkingsTimes !== 0) {
         if (reworking) {
           await Reworking.update(
             {
@@ -1252,7 +1118,9 @@ class WorkingHoursController {
             },
           });
         }
-      } else if (underworkingsTimes != 0) {
+      }
+      if (underworkingsTimes !== 0) {
+        console.log("underworkingsTimes !== 0");
         if (underworking) {
           await Underworking.update(
             {
@@ -1260,7 +1128,7 @@ class WorkingHoursController {
             },
             {
               where: {
-                id_inderworking: underworking.id_inderworking,
+                id_underworking: underworking.id_underworking,
               },
             }
           );
@@ -1271,12 +1139,13 @@ class WorkingHoursController {
             calendarIdCalendar: calendar.id_calendar,
             typeOverUnderWorkIdTypeOverUnderWork: 1,
           });
+          console.log("CREATE");
         }
       } else if (underworkingsTimes == 0) {
         if (underworking) {
           await Underworking.destroy({
             where: {
-              id_inderworking: underworking.id_inderworking,
+              id_underworking: underworking.id_underworking,
             },
           });
         }
