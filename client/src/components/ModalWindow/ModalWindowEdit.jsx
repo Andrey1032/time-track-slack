@@ -130,7 +130,7 @@ export default function ModalWindowEdit({
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form className="form" onSubmit={handleSubmit(onSubmit)}>
             <div className="modal-window" ref={modalRef}>
                 <div className="modal-content">
                     <p className="title">{title}</p>
@@ -160,7 +160,8 @@ export default function ModalWindowEdit({
                 </div>
                 <div className="modal-buttons">
                     {interval && (
-                        <div
+                        <button
+                            type="button"
                             className="modal-button-1"
                             onClick={async () => {
                                 // eslint-disable-next-line no-restricted-globals
@@ -199,16 +200,17 @@ export default function ModalWindowEdit({
                             }}
                         >
                             Удалить
-                        </div>
+                        </button>
                     )}
-                    <div
+                    <button
+                        type="button"
                         className="modal-button-2"
                         onClick={() => {
                             onChange(false);
                         }}
                     >
                         Отмена
-                    </div>
+                    </button>
                     <button type="submit" className="modal-button-3">
                         Сохранить
                     </button>

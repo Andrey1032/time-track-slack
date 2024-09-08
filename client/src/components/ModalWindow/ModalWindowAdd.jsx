@@ -50,7 +50,9 @@ export default function ModalWindowAdd({
         ) {
             return false;
         }
-        const intervals = dates.find((dat) => dat.date === getValues("date")).worked_time;
+        const intervals = dates.find(
+            (dat) => dat.date === getValues("date")
+        ).worked_time;
 
         const flag = intervals
             .map(
@@ -104,12 +106,13 @@ export default function ModalWindowAdd({
                 !values.valueStartTime ||
                 !values.valueEndTime ||
                 !values.coment ||
-                !values.date ||
-                values.valueStartTime === values.valueEndTime
+                !values.date
             ) {
-                alert("Проверьте поля!");
+                values.valueStartTime === values.valueEndTime
+                    ? alert("Проверьте интервал времени")
+                    : alert("Проверьте поля!");
             } else {
-                if (checkInterval(values.valueStartTime, values.valueEndTime) ) {
+                if (checkInterval(values.valueStartTime, values.valueEndTime)) {
                     await createWorkingHours({
                         start_time: values.valueStartTime,
                         end_time: values.valueEndTime,
@@ -131,7 +134,7 @@ export default function ModalWindowAdd({
         }
     };
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form className="form" onSubmit={handleSubmit(onSubmit)}>
             <div className="modal-window" ref={modalRef}>
                 <div className="modal-content">
                     <p className="title">{title}</p>
@@ -165,14 +168,15 @@ export default function ModalWindowAdd({
                     </div>
                 </div>
                 <div className="modal-buttons">
-                    <div
+                    <button
+                        type="button"
                         className="modal-button-2"
                         onClick={() => {
                             onChange(false);
                         }}
                     >
                         Отмена
-                    </div>
+                    </button>
                     <button className="modal-button-3" type="submit">
                         Добавить
                     </button>

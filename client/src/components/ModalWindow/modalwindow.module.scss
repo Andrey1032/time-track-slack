@@ -1,6 +1,6 @@
 @import "../../assets/styles/mixins";
 
-form .modal-window {
+.form .modal-window {
     --widthModal: calc(100vw - (100vw - 320px) * 0.9);
 
     position: fixed;
