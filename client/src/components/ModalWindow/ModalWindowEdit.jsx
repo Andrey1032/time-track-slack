@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
     createWrittenOffTime,
     deleteWorkingHours,
@@ -26,14 +26,14 @@ export default function ModalWindowEdit({
     date,
     id,
 }) {
-    const { register, handleSubmit } = useForm({
+    const { register, handleSubmit, getValues } = useForm({
         defaultValues: {
             valueStartTime: interval ? interval.start : null,
             valueEndTime: interval ? interval.end : time,
             coment: "",
         },
     });
-    const [coment, setComent] = useState("");
+
     const calendarData = useSelector(selectorCalendarData);
     const currentEmp = useSelector(selectorCurrentEmployee);
     const employee = useSelector(
@@ -153,7 +153,6 @@ export default function ModalWindowEdit({
                             className="form__input"
                             type="text"
                             placeholder=" "
-                            onChange={(e) => setComent(e.target.value)}
                             {...register("coment")}
                         />
                         <label className="form__label">Комментарий</label>
@@ -166,31 +165,36 @@ export default function ModalWindowEdit({
                             onClick={async () => {
                                 // eslint-disable-next-line no-restricted-globals
                                 if (confirm("Уверены что хотите удалить?")) {
-                                    await deleteWorkingHours({
-                                        params: {
-                                            year: date[0],
-                                            month: date[1],
-                                            day: date[2],
-                                        },
-                                        body: {
-                                            start_time_old: interval.start,
-                                            end_time_old: interval.end,
-                                            comments: coment,
-                                            userIdUser: role
-                                                ? typeof currentEmp === "object"
-                                                    ? employee[currentEmp.dep]
-                                                          ?.users[
-                                                          currentEmp.user
-                                                      ].id_user
-                                                    : employee[currentEmp]
-                                                          .id_user
-                                                : user.userData.id_user,
-                                            writingByUserID: role
-                                                ? userId
-                                                : user.userData.id_user,
-                                        },
-                                    });
-                                    onChange(false);
+                                    if (getValues("coment") !== "") {
+                                        await deleteWorkingHours({
+                                            params: {
+                                                year: date[0],
+                                                month: date[1],
+                                                day: date[2],
+                                            },
+                                            body: {
+                                                start_time_old: interval.start,
+                                                end_time_old: interval.end,
+                                                comments: getValues("coment"),
+                                                userIdUser: role
+                                                    ? typeof currentEmp ===
+                                                      "object"
+                                                        ? employee[
+                                                              currentEmp.dep
+                                                          ]?.users[
+                                                              currentEmp.user
+                                                          ].id_user
+                                                        : employee[currentEmp]
+                                                              .id_user
+                                                    : user.userData.id_user,
+                                                writingByUserID: role
+                                                    ? userId
+                                                    : user.userData.id_user,
+                                            },
+                                        });
+                                        onChange(false);
+                                    } else
+                                        alert("Проверьте наличие комментария!");
                                 }
                             }}
                         >
