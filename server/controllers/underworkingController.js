@@ -1,6 +1,4 @@
-// const { Underworking, Calendar } = require("../database/models");
-const { Underworking } = require("../database/underworkingModel");
-const { Calendar } = require("../database/calendarModel");
+const { Underworking, Calendar } = require("../database/models");
 
 class UnderworkingController {
   async createUnderworking(req, res) {
@@ -27,45 +25,45 @@ class UnderworkingController {
     }
   }
 
-  //   async updateUnderworking(req, res) {
-  //     const { id_underworking } = req.params;
-  //     const {
-  //       time_underworking,
-  //       comments,
-  //       userIdUser,
-  //       calendarIdCalendar,
-  //       typeOverUnderWorkIdTypeOverUnderWork,
-  //     } = req.body;
-  //     try {
-  //       const underworking = await Underworking.update(
-  //         {
-  //           time_underworking,
-  //           comments,
-  //           userIdUser,
-  //           calendarIdCalendar,
-  //           typeOverUnderWorkIdTypeOverUnderWork,
-  //         },
-  //         { where: { id_underworking } }
-  //       );
-  //       return res.json(underworking);
-  //     } catch (error) {
-  //       console.log(error);
-  //       return res.status(500).send("Ошибка обновления недоработки");
-  //     }
-  //   }
+//   async updateUnderworking(req, res) {
+//     const { id_underworking } = req.params;
+//     const {
+//       time_underworking,
+//       comments,
+//       userIdUser,
+//       calendarIdCalendar,
+//       typeOverUnderWorkIdTypeOverUnderWork,
+//     } = req.body;
+//     try {
+//       const underworking = await Underworking.update(
+//         {
+//           time_underworking,
+//           comments,
+//           userIdUser,
+//           calendarIdCalendar,
+//           typeOverUnderWorkIdTypeOverUnderWork,
+//         },
+//         { where: { id_underworking } }
+//       );
+//       return res.json(underworking);
+//     } catch (error) {
+//       console.log(error);
+//       return res.status(500).send("Ошибка обновления недоработки");
+//     }
+//   }
 
-  //   async deleteUnderworking(req, res) {
-  //     const { id_underworking } = req.params;
-  //     try {
-  //       const underworking = await Underworking.destroy({
-  //         where: { id_underworking },
-  //       });
-  //       return res.json(underworking);
-  //     } catch (error) {
-  //       console.log(error);
-  //       return res.status(500).send("Ошибка удаления недоработки");
-  //     }
-  //   }
+//   async deleteUnderworking(req, res) {
+//     const { id_underworking } = req.params;
+//     try {
+//       const underworking = await Underworking.destroy({
+//         where: { id_underworking },
+//       });
+//       return res.json(underworking);
+//     } catch (error) {
+//       console.log(error);
+//       return res.status(500).send("Ошибка удаления недоработки");
+//     }
+//   }
 }
 
 module.exports = new UnderworkingController();

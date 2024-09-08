@@ -1,6 +1,4 @@
-// const { Reworking, Calendar } = require("../database/models");
-const { Reworking } = require("../database/reworkingModel");
-const { Calendar } = require("../database/calendarModel");
+const { Reworking, Calendar } = require("../database/models");
 
 class ReworkingController {
   async createUnderworking(req, res) {
@@ -12,7 +10,7 @@ class ReworkingController {
       typeOverUnderWorkIdTypeOverUnderWork,
     } = req.body;
     try {
-      const calendar = await Calendar.findOne({ where: { date: date } });
+      const calendar = await Calendar.findOne({where: {date: date}})
       const reworking = await Reworking.create({
         time_reworking,
         comments,
@@ -22,7 +20,7 @@ class ReworkingController {
       });
       return res.json(reworking);
     } catch (error) {
-      console.log(error);
+      console.log(error)
       return res.status(500).send("Ошибка записи переработки");
     }
   }

@@ -1,6 +1,4 @@
-// const { Writing_off_time, User } = require("../database/models");
-const { Writing_off_time } = require("../database/writtenOffTimeModel");
-const { User } = require("../database/userModel");
+const { Writing_off_time, Type_of_work, User } = require("../database/models");
 const { Sequelize } = require("sequelize");
 
 class WrittenOffTimeController {
@@ -15,6 +13,7 @@ class WrittenOffTimeController {
       writingByUserID,
       typeOfWorkIdTypeOfWork,
     } = req.body;
+    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", req.body)
     try {
       const writingOffTime = await Writing_off_time.create({
         month,

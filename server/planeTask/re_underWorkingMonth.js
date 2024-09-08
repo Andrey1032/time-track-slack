@@ -1,28 +1,18 @@
 const cron = require("node-cron");
-// const {
-//   User,
-//   Calendar,
-//   Reworking,
-//   Underworking,
-//   Reworking_month,
-//   Underworking_month,
-//   Writing_off_time,
-// } = require("../database/models");
-const { User } = require("../database/userModel");
-const { Calendar } = require("../database/calendarModel");
-const { Reworking } = require("../database/reworkingModel");
-const { Underworking } = require("../database/underworkingModel");
-const { Reworking_month } = require("../database/reworkingMonthModel");
-const { Underworking_month } = require("../database/underworkingMonthModel");
-const { Writing_off_time } = require("../database/writtenOffTimeModel");
+const {
+  User,
+  Calendar,
+  Reworking,
+  Underworking,
+  Reworking_month,
+  Underworking_month,
+  Writing_off_time,
+} = require("../database/models");
 const Sequelize = require("sequelize");
 
 cron.schedule("10 0 1 * *", async function () {
-  let date = new Date(
-    new Date(new Date().getFullYear(), new Date().getMonth())
-      .toJSON()
-      .substring(0, 10)
-  );
+
+let date = new Date(new Date(new Date().getFullYear(), new Date().getMonth()).toJSON().substring(0, 10))
 
   let dates = JSON.parse(
     JSON.stringify(

@@ -4,13 +4,13 @@ const {Reworking} = require("./reworkingModel")
 const {Underworking} = require("./underworkingModel")
 
 const Type_over_under_work = sequelize.define("type_over_under_work", {
-  id_type_over_under_work: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  name_type_over_under_work: { type: DataTypes.STRING, allowNull: false },
-});
+    id_type_over_under_work: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    name_type_over_under_work: { type: DataTypes.STRING, allowNull: false },
+  });
 
 Type_over_under_work.hasMany(Reworking);
 Reworking.belongsTo(Type_over_under_work);

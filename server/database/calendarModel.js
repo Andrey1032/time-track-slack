@@ -6,13 +6,13 @@ const {Reworking} = require("./reworkingModel")
 const {Underworking} = require("./underworkingModel")
 
 const Calendar = sequelize.define("calendar", {
-  id_calendar: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  },
-  date: { type: DataTypes.DATEONLY, allowNull: false },
-});
+    id_calendar: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    date: { type: DataTypes.DATE, allowNull: false },
+  });
 
 Calendar.hasMany(Message);
 Message.belongsTo(Calendar);

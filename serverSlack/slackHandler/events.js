@@ -2,8 +2,6 @@ const Router = require("express");
 const router = new Router();
 const axios = require("axios");
 
-require("dotenv").config();
-
 const { createEventAdapter } = require("@slack/events-api");
 const slackSigningSecret = process.env.SLACK_SIGNAL_SECRET;
 
@@ -73,18 +71,18 @@ slackEvents.on("message", async (event, body) => {
       } catch (error) {
         console.log("Error adding song", error);
       }
-    } else if (event.text == process.env.SLACK_EVENT_TEXT_END) {
+    } else if (event.text == process.env.SLACK_EVENT_TEXT_END) {  
       let data = {
         end_time_new: formattedTime,
         slackIdUser: event.user,
       };
       try {
         const response = await axios({
-          url:
-            process.env.SLACK_URL_POST_END_MESSAGE + `${year}/${month}/${day}`,
+          url: process.env.SLACK_URL_POST_END_MESSAGE,
           method: "put",
           data: data,
         });
+
       } catch (error) {
         console.log("Error adding song", error);
       }
@@ -111,9 +109,6 @@ slackEvents.on("message", async (event, body) => {
   }
 });
 
-router.use(
-  process.env.SLACK_EVENTS_LISTENER_ROUTER,
-  slackEvents.requestListener()
-);
+router.use(process.env.SLACK_EVENTS_LISTENER_ROUTER, slackEvents.requestListener());
 
 module.exports = router;
