@@ -1,13 +1,17 @@
 const bcrypt = require("bcrypt");
 const Sequelize = require("sequelize");
-const {
-  Department,
-  User,
-  Account_Data,
-  Calendar,
-  Working_Hours,
-} = require("../database/models");
-const { stack } = require("sequelize/lib/utils");
+// const {
+//   Department,
+//   User,
+//   Account_Data,
+//   Calendar,
+//   Working_Hours,
+// } = require("../database/models");
+const { Department } = require("../database/userModel");
+const { User } = require("../database/userModel");
+const { Account_Data } = require("../database/accountDataModel");
+const { Calendar } = require("../database/calendarModel");
+const { Working_Hours } = require("../database/workingHoursModel");
 
 class DepartmentController {
   async createDepartment(req, res) {
@@ -150,22 +154,24 @@ class DepartmentController {
             do {
               let firstDateCurrentYear;
               let lastDateCurrentYear;
-  
+
               async function get1() {
                 firstDateCurrentYear = await Calendar.findOne({
                   where: {
-                    date: new Date(yearMenu, 1 - 1, 2).toJSON().substring(0, 10),
+                    date: new Date(yearMenu, 1 - 1, 2)
+                      .toJSON()
+                      .substring(0, 10),
                   },
                 });
-  
+
                 lastDateCurrentYear = await Calendar.findOne({
                   where: {
                     date: new Date(yearMenu, 12).toJSON().substring(0, 10),
                   },
                 });
-  
+
                 if (!firstDateCurrentYear || !lastDateCurrentYear) return;
-  
+
                 year_user = await Working_Hours.findOne({
                   where: {
                     userIdUser: user.id_user,
@@ -177,38 +183,39 @@ class DepartmentController {
                     },
                   },
                 });
-  
+
                 if (year_user) {
                   menuYear.push(yearMenu);
                   yearMenu--;
                 }
-  
+
                 //console.log(menuYear);
-  
+
                 return menuYear;
               }
-  
+
               menu = get1();
-  
             } while (year_user);
-  
-            const menu2 = menu.then(result => {return result})
+
+            const menu2 = menu.then((result) => {
+              return result;
+            });
             const menu3 = async () => {
               user.menuYear = await menu2;
-              if (indexDep == departmentF.length - 1){
+              if (indexDep == departmentF.length - 1) {
                 return res.status(200).send(departmentF);
               }
-            }
-  
-            menu3()
+            };
+
+            menu3();
           });
-        })
+        });
         //return res.status(200).send(departmentF);
       } else {
         departmentF.users.sort((a, b) =>
           a.surname.localeCompare(b.surname, undefined, { sensitivity: "base" })
         );
-        
+
         let year_user, menu, year_result;
         departmentF.users.map((user, index) => {
           let menuYear = [currentDate.getFullYear()];
@@ -254,18 +261,19 @@ class DepartmentController {
             }
 
             menu = get1();
-
           } while (year_user);
 
-          const menu2 = menu.then(result => {return result})
+          const menu2 = menu.then((result) => {
+            return result;
+          });
           const menu3 = async () => {
             user.menuYear = await menu2;
-            if (index == departmentF.users.length - 1){
+            if (index == departmentF.users.length - 1) {
               return res.status(200).send(departmentF);
             }
-          }
+          };
 
-          menu3()
+          menu3();
         });
       }
 
