@@ -149,6 +149,7 @@ class DepartmentController {
         });
         departmentF.forEach((department, indexDep) => {
           let year_user, menu, year_result;
+          if (department.users.length == 0) department.users[0] = {id_user: 0}
           department.users.map((user, index) => {
             let menuYear = [currentDate.getFullYear()];
             do {
@@ -203,6 +204,7 @@ class DepartmentController {
             const menu3 = async () => {
               user.menuYear = await menu2;
               if (indexDep == departmentF.length - 1) {
+                if (user.id_user == 0) department.users.length = 0
                 return res.status(200).send(departmentF);
               }
             };
