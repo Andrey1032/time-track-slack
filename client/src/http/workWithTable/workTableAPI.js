@@ -90,7 +90,6 @@ export const updateWorkingHours = async ({ params, body }) => {
 export const deleteWorkingHours = async ({ params, body }) => {
     let data;
     store.dispatch(updateStatusUpdate("loading"));
-
     $api.put(
         `${process.env.REACT_APP_WORKING_HOURS_DELETE}/${params.year}/${params.month}/${params.day}`,
         body

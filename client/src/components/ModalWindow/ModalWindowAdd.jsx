@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
     createReworking,
     createUnderworking,
@@ -20,7 +20,7 @@ export default function ModalWindowAdd({
     modalRef,
     interval,
 }) {
-    const { register, handleSubmit } = useForm({
+    const { register, handleSubmit, getValues } = useForm({
         defaultValues: {
             valueStartTime: interval ? interval?.start : "00:00",
             valueEndTime: interval ? interval?.end : "00:00",
@@ -37,7 +37,6 @@ export default function ModalWindowAdd({
     );
     const user = useSelector((state) => state.user);
     const role = useSelector(selectorUserRole);
-    const [date, setDate] = useState(null);
     const dates = useSelector((state) =>
         interval
             ? state.employees?.userData[0]
@@ -51,7 +50,7 @@ export default function ModalWindowAdd({
         ) {
             return false;
         }
-        const intervals = dates.find((dat) => dat.date === date).worked_time;
+        const intervals = dates.find((dat) => dat.date === getValues("date")).worked_time;
 
         const flag = intervals
             .map(
@@ -140,7 +139,6 @@ export default function ModalWindowAdd({
                         type="date"
                         max={"2050-12-31"}
                         {...register("date")}
-                        onChange={(e) => setDate(e.target.value)}
                     />
 
                     <div className="inputs-time">
